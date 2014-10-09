@@ -3,6 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+
 package saludtec.admincloud.web.servicios;
 
 import java.io.IOException;
@@ -17,8 +18,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import saludtec.admincloud.ejb.crud.TiposDocumentosEjb;
-import saludtec.admincloud.ejb.entidades.TiposDeDocumentos;
+import saludtec.admincloud.ejb.crud.TiposVinculacionEjb;
+import saludtec.admincloud.ejb.entidades.TiposDeVinculacion;
 import saludtec.admincloud.web.utilidades.Sesion;
 import saludtec.admincloud.web.utilidades.Utils;
 
@@ -26,14 +27,23 @@ import saludtec.admincloud.web.utilidades.Utils;
  *
  * @author saintec
  */
-@WebServlet(name = "TiposDocumentosWeb", urlPatterns = {"/tiposDocumentos/*"})
-public class TiposDocumentosWeb extends HttpServlet {
+@WebServlet(name = "TiposVinculacionWeb", urlPatterns = {"/tiposVinculacion/*"})
+public class TiposVinculacionWeb extends HttpServlet {
 
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    
     @EJB
-    TiposDocumentosEjb ejbTipoDocumento;
+    TiposVinculacionEjb ejbTipoVinculacion;
     Sesion sesion = new Sesion();
-    Date fechaActual = Utils.fecha();
-
+    Date fechaActual=Utils.fecha();
+    
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -49,20 +59,20 @@ public class TiposDocumentosWeb extends HttpServlet {
                     switch (servicio) {
                         case "/guardar":
                             guardarTipoDocumento(request);
-                            listarTiposDocumentos(request).writeJSONString(out);
+                            listarTiposVinculacion(request).writeJSONString(out);
                             break;
 
                         case "/editar":
                             editarTipoDocumento(request);
-                            listarTiposDocumentos(request).writeJSONString(out);
+                            listarTiposVinculacion(request).writeJSONString(out);
                             break;
 
                         case "/eliminar":
                             Integer rsp = eliminarTipoDocumento(request);
                             if (rsp == 200) {
-                                listarTiposDocumentos(request).writeJSONString(out);
+                                listarTiposVinculacion(request).writeJSONString(out);
                             } else {
-                                response.sendError(400, "Documento no eliminado");
+                                response.sendError(400, "Tipo de vinculacion no eliminado");
                             }
                             break;
 
@@ -77,7 +87,7 @@ public class TiposDocumentosWeb extends HttpServlet {
                 case "GET":
                     switch (servicio) {
                         case "/listar":
-                            listarTiposDocumentos(request).writeJSONString(out);
+                            listarTiposVinculacion(request).writeJSONString(out);
                             break;
 
                         case "/traer":
@@ -102,16 +112,16 @@ public class TiposDocumentosWeb extends HttpServlet {
     public JSONArray guardarTipoDocumento(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        TiposDeDocumentos tipoDocumento = new TiposDeDocumentos();
-        tipoDocumento.setTipoDeDocumento(r.getParameter("tipoDocumento"));
-        tipoDocumento.setEstado("activo");
-        tipoDocumento.setFechaCreacion(fechaActual);
-        tipoDocumento.setUltimaEdicion(fechaActual);
-        tipoDocumento.setIdClinica(sesion.clinica(r));
-        tipoDocumento = ejbTipoDocumento.guardar(tipoDocumento);
-        if (tipoDocumento.getIdTipoDeDocumento() != null) {
+        TiposDeVinculacion tipoVinculacion = new TiposDeVinculacion();
+        tipoVinculacion.setTipoDeVinculacion(r.getParameter("tipoVinculacion"));
+        tipoVinculacion.setEstado("activo");
+        tipoVinculacion.setFechaCreacion(fechaActual);
+        tipoVinculacion.setUltimaEdicion(fechaActual);
+        tipoVinculacion.setIdClinica(sesion.clinica(r));
+        tipoVinculacion = ejbTipoVinculacion.guardar(tipoVinculacion);
+        if (tipoVinculacion.getIdTipoDeVinculacion() != null) {
             obj = new JSONObject();
-            obj.put("idTipoDocumento", tipoDocumento.getIdTipoDeDocumento());
+            obj.put("idTipoDocumento", tipoVinculacion.getIdTipoDeVinculacion());
             array.add(obj);
         }
         return array;
@@ -120,33 +130,33 @@ public class TiposDocumentosWeb extends HttpServlet {
     public JSONArray editarTipoDocumento(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        TiposDeDocumentos tipoDocumento = ejbTipoDocumento.traer(Integer.parseInt(r.getParameter("idTipoDocumento")));
-        if (tipoDocumento != null) {
-            tipoDocumento.setTipoDeDocumento(r.getParameter("tipoDocumento"));
-            tipoDocumento.setUltimaEdicion(fechaActual);
-            tipoDocumento = ejbTipoDocumento.editar(tipoDocumento);
+        TiposDeVinculacion tipoVinculacion = ejbTipoVinculacion.traer(Integer.parseInt(r.getParameter("idTipoVinculacion")));
+        if (tipoVinculacion != null) {
+            tipoVinculacion.setTipoDeVinculacion(r.getParameter("tipoVinculacion"));
+            tipoVinculacion.setUltimaEdicion(fechaActual);
+            tipoVinculacion = ejbTipoVinculacion.editar(tipoVinculacion);
             obj = new JSONObject();
-            obj.put("idTipoDocumento", tipoDocumento.getIdTipoDeDocumento());
+            obj.put("idTipoVinculacion", tipoVinculacion.getIdTipoDeVinculacion());
             array.add(obj);
         }
         return array;
     }
 
     public Integer eliminarTipoDocumento(HttpServletRequest r) {
-        Integer ok = ejbTipoDocumento.eliminar(Integer.parseInt(r.getParameter("idTipoDocumento")));
+        Integer ok = ejbTipoVinculacion.eliminar(Integer.parseInt(r.getParameter("idTipoVinculacion")));
         return ok;
     }
 
-    public JSONArray listarTiposDocumentos(HttpServletRequest r) {
+    public JSONArray listarTiposVinculacion(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        List<TiposDeDocumentos> tiposDocumentos = ejbTipoDocumento.listar(sesion.clinica(r));
+        List<TiposDeVinculacion> tiposDocumentos = ejbTipoVinculacion.listar(sesion.clinica(r));
         if (tiposDocumentos != null) {
-            for (TiposDeDocumentos tipoDocumento : tiposDocumentos) {
-                if (tipoDocumento.getEstado().equals("activo")) {
+            for (TiposDeVinculacion tipoVinculacion : tiposDocumentos) {
+                if (tipoVinculacion.getEstado().equals("activo")) {
                     obj = new JSONObject();
-                    obj.put("idTipoDocumento", tipoDocumento.getIdTipoDeDocumento());
-                    obj.put("tipoDocumento", tipoDocumento.getTipoDeDocumento());
+                    obj.put("idTipoVinculacion", tipoVinculacion.getIdTipoDeVinculacion());
+                    obj.put("tipoVinculacion", tipoVinculacion.getTipoDeVinculacion());
                     array.add(obj);
                 }
             }
@@ -157,11 +167,11 @@ public class TiposDocumentosWeb extends HttpServlet {
     public JSONArray traerTiposDocumentos(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        TiposDeDocumentos tipoDocumento = ejbTipoDocumento.traer(Integer.parseInt(r.getParameter("idTipoDocumento")));
-        if (tipoDocumento != null) {
+        TiposDeVinculacion tipoVinculacion = ejbTipoVinculacion.traer(Integer.parseInt(r.getParameter("idTipoVinculacion")));
+        if (tipoVinculacion != null) {
             obj = new JSONObject();
-            obj.put("idTipoDocumento", tipoDocumento.getIdTipoDeDocumento());
-            obj.put("tipoDocumento", tipoDocumento.getTipoDeDocumento());
+            obj.put("idTipoVinculacion", tipoVinculacion.getIdTipoDeVinculacion());
+            obj.put("tipoVinculacion", tipoVinculacion.getTipoDeVinculacion());
             array.add(obj);
         }
         return array;

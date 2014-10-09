@@ -17,8 +17,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import saludtec.admincloud.ejb.crud.TiposDocumentosEjb;
-import saludtec.admincloud.ejb.entidades.TiposDeDocumentos;
+import saludtec.admincloud.ejb.crud.DepartamentosEjb;
+import saludtec.admincloud.ejb.entidades.Departamentos;
 import saludtec.admincloud.web.utilidades.Sesion;
 import saludtec.admincloud.web.utilidades.Utils;
 
@@ -26,11 +26,19 @@ import saludtec.admincloud.web.utilidades.Utils;
  *
  * @author saintec
  */
-@WebServlet(name = "TiposDocumentosWeb", urlPatterns = {"/tiposDocumentos/*"})
-public class TiposDocumentosWeb extends HttpServlet {
+@WebServlet(name = "DepartamentosWeb", urlPatterns = {"/departamentos/*"})
+public class DepartamentosWeb extends HttpServlet {
 
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
     @EJB
-    TiposDocumentosEjb ejbTipoDocumento;
+    DepartamentosEjb ejbDepartamento;
     Sesion sesion = new Sesion();
     Date fechaActual = Utils.fecha();
 
@@ -48,21 +56,21 @@ public class TiposDocumentosWeb extends HttpServlet {
                 case "POST":
                     switch (servicio) {
                         case "/guardar":
-                            guardarTipoDocumento(request);
-                            listarTiposDocumentos(request).writeJSONString(out);
+                            guardarDepartamento(request);
+                            listarDepartamentos(request).writeJSONString(out);
                             break;
 
                         case "/editar":
-                            editarTipoDocumento(request);
-                            listarTiposDocumentos(request).writeJSONString(out);
+                            editarDepartamento(request);
+                            listarDepartamentos(request).writeJSONString(out);
                             break;
 
                         case "/eliminar":
-                            Integer rsp = eliminarTipoDocumento(request);
+                            Integer rsp = eliminarDepartamento(request);
                             if (rsp == 200) {
-                                listarTiposDocumentos(request).writeJSONString(out);
+                                listarDepartamentos(request).writeJSONString(out);
                             } else {
-                                response.sendError(400, "Documento no eliminado");
+                                response.sendError(400, "Departamento no eliminado");
                             }
                             break;
 
@@ -77,7 +85,7 @@ public class TiposDocumentosWeb extends HttpServlet {
                 case "GET":
                     switch (servicio) {
                         case "/listar":
-                            listarTiposDocumentos(request).writeJSONString(out);
+                            listarDepartamentos(request).writeJSONString(out);
                             break;
 
                         case "/traer":
@@ -98,55 +106,58 @@ public class TiposDocumentosWeb extends HttpServlet {
         }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="Metodos CRUD tipos de documentos">
-    public JSONArray guardarTipoDocumento(HttpServletRequest r) {
+    // <editor-fold defaultstate="collapsed" desc="Metodos CRUD tipos de departamentos">
+    public JSONArray guardarDepartamento(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        TiposDeDocumentos tipoDocumento = new TiposDeDocumentos();
-        tipoDocumento.setTipoDeDocumento(r.getParameter("tipoDocumento"));
-        tipoDocumento.setEstado("activo");
-        tipoDocumento.setFechaCreacion(fechaActual);
-        tipoDocumento.setUltimaEdicion(fechaActual);
-        tipoDocumento.setIdClinica(sesion.clinica(r));
-        tipoDocumento = ejbTipoDocumento.guardar(tipoDocumento);
-        if (tipoDocumento.getIdTipoDeDocumento() != null) {
+        Departamentos departamento = new Departamentos();
+        departamento.setDepartamento(r.getParameter("departamento"));
+        departamento.setCodigo(r.getParameter("codigoDepartamento"));
+        departamento.setEstado("activo");
+        departamento.setFechaCreacion(fechaActual);
+        departamento.setUltimaEdicion(fechaActual);
+        departamento.setIdClinica(sesion.clinica(r));
+        departamento = ejbDepartamento.guardar(departamento);
+        if (departamento.getIdDepartamento() != null) {
             obj = new JSONObject();
-            obj.put("idTipoDocumento", tipoDocumento.getIdTipoDeDocumento());
+            obj.put("idDepartamento", departamento.getIdDepartamento());
             array.add(obj);
         }
         return array;
     }
 
-    public JSONArray editarTipoDocumento(HttpServletRequest r) {
+    public JSONArray editarDepartamento(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        TiposDeDocumentos tipoDocumento = ejbTipoDocumento.traer(Integer.parseInt(r.getParameter("idTipoDocumento")));
-        if (tipoDocumento != null) {
-            tipoDocumento.setTipoDeDocumento(r.getParameter("tipoDocumento"));
-            tipoDocumento.setUltimaEdicion(fechaActual);
-            tipoDocumento = ejbTipoDocumento.editar(tipoDocumento);
+        Departamentos departamento = ejbDepartamento.traer(Integer.parseInt(r.getParameter("idDepartamento")));
+        if (departamento != null) {
+            departamento.setDepartamento(r.getParameter("departamento"));
+            departamento.setCodigo(r.getParameter("codigoDepartamento"));
+            departamento.setUltimaEdicion(fechaActual);
+            departamento = ejbDepartamento.editar(departamento);
             obj = new JSONObject();
-            obj.put("idTipoDocumento", tipoDocumento.getIdTipoDeDocumento());
+            obj.put("idDepartamento", departamento.getIdDepartamento());
             array.add(obj);
         }
         return array;
     }
 
-    public Integer eliminarTipoDocumento(HttpServletRequest r) {
-        Integer ok = ejbTipoDocumento.eliminar(Integer.parseInt(r.getParameter("idTipoDocumento")));
+    public Integer eliminarDepartamento(HttpServletRequest r) {
+        Integer ok = ejbDepartamento.eliminar(Integer.parseInt(r.getParameter("idDepartamento")));
         return ok;
     }
 
-    public JSONArray listarTiposDocumentos(HttpServletRequest r) {
+    public JSONArray listarDepartamentos(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        List<TiposDeDocumentos> tiposDocumentos = ejbTipoDocumento.listar(sesion.clinica(r));
+        List<Departamentos> tiposDocumentos = ejbDepartamento.listar(sesion.clinica(r));
         if (tiposDocumentos != null) {
-            for (TiposDeDocumentos tipoDocumento : tiposDocumentos) {
-                if (tipoDocumento.getEstado().equals("activo")) {
+            for (Departamentos departamento : tiposDocumentos) {
+                if (departamento.getEstado().equals("activo")) {
                     obj = new JSONObject();
-                    obj.put("idTipoDocumento", tipoDocumento.getIdTipoDeDocumento());
-                    obj.put("tipoDocumento", tipoDocumento.getTipoDeDocumento());
+                    obj.put("idDepartamento", departamento.getIdDepartamento());
+                    obj.put("departamento", departamento.getDepartamento());
+                    obj.put("codigoDepartamento", departamento.getCodigo());
                     array.add(obj);
                 }
             }
@@ -157,11 +168,12 @@ public class TiposDocumentosWeb extends HttpServlet {
     public JSONArray traerTiposDocumentos(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        TiposDeDocumentos tipoDocumento = ejbTipoDocumento.traer(Integer.parseInt(r.getParameter("idTipoDocumento")));
-        if (tipoDocumento != null) {
+        Departamentos departamento = ejbDepartamento.traer(Integer.parseInt(r.getParameter("idDepartamento")));
+        if (departamento != null) {
             obj = new JSONObject();
-            obj.put("idTipoDocumento", tipoDocumento.getIdTipoDeDocumento());
-            obj.put("tipoDocumento", tipoDocumento.getTipoDeDocumento());
+            obj.put("idDepartamento", departamento.getIdDepartamento());
+            obj.put("departamento", departamento.getDepartamento());
+            obj.put("codigoDepartamento", departamento.getCodigo());
             array.add(obj);
         }
         return array;

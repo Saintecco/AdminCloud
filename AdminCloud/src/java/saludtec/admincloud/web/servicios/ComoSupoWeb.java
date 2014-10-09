@@ -17,8 +17,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import saludtec.admincloud.ejb.crud.TiposDocumentosEjb;
-import saludtec.admincloud.ejb.entidades.TiposDeDocumentos;
+import saludtec.admincloud.ejb.crud.ComoSupoEjb;
+import saludtec.admincloud.ejb.entidades.ComoSupo;
 import saludtec.admincloud.web.utilidades.Sesion;
 import saludtec.admincloud.web.utilidades.Utils;
 
@@ -26,11 +26,19 @@ import saludtec.admincloud.web.utilidades.Utils;
  *
  * @author saintec
  */
-@WebServlet(name = "TiposDocumentosWeb", urlPatterns = {"/tiposDocumentos/*"})
-public class TiposDocumentosWeb extends HttpServlet {
+@WebServlet(name = "ComoSupoWeb", urlPatterns = {"/comoSupo/*"})
+public class ComoSupoWeb extends HttpServlet {
 
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
     @EJB
-    TiposDocumentosEjb ejbTipoDocumento;
+    ComoSupoEjb ejbComoSupo;
     Sesion sesion = new Sesion();
     Date fechaActual = Utils.fecha();
 
@@ -48,17 +56,17 @@ public class TiposDocumentosWeb extends HttpServlet {
                 case "POST":
                     switch (servicio) {
                         case "/guardar":
-                            guardarTipoDocumento(request);
+                            guardarComoSupo(request);
                             listarTiposDocumentos(request).writeJSONString(out);
                             break;
 
                         case "/editar":
-                            editarTipoDocumento(request);
+                            editarComoSupo(request);
                             listarTiposDocumentos(request).writeJSONString(out);
                             break;
 
                         case "/eliminar":
-                            Integer rsp = eliminarTipoDocumento(request);
+                            Integer rsp = eliminarComoSupo(request);
                             if (rsp == 200) {
                                 listarTiposDocumentos(request).writeJSONString(out);
                             } else {
@@ -99,54 +107,54 @@ public class TiposDocumentosWeb extends HttpServlet {
     }
 
     // <editor-fold defaultstate="collapsed" desc="Metodos CRUD tipos de documentos">
-    public JSONArray guardarTipoDocumento(HttpServletRequest r) {
+    public JSONArray guardarComoSupo(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        TiposDeDocumentos tipoDocumento = new TiposDeDocumentos();
-        tipoDocumento.setTipoDeDocumento(r.getParameter("tipoDocumento"));
-        tipoDocumento.setEstado("activo");
-        tipoDocumento.setFechaCreacion(fechaActual);
-        tipoDocumento.setUltimaEdicion(fechaActual);
-        tipoDocumento.setIdClinica(sesion.clinica(r));
-        tipoDocumento = ejbTipoDocumento.guardar(tipoDocumento);
-        if (tipoDocumento.getIdTipoDeDocumento() != null) {
+        ComoSupo comoSupo = new ComoSupo();
+        comoSupo.setComoSupo(r.getParameter("comoSupo"));
+        comoSupo.setEstado("activo");
+        comoSupo.setFechaCreacion(fechaActual);
+        comoSupo.setUltimaEdicion(fechaActual);
+        comoSupo.setIdClinica(sesion.clinica(r));
+        comoSupo = ejbComoSupo.guardar(comoSupo);
+        if (comoSupo.getIdComoSupo() != null) {
             obj = new JSONObject();
-            obj.put("idTipoDocumento", tipoDocumento.getIdTipoDeDocumento());
+            obj.put("idComoSupo", comoSupo.getIdComoSupo());
             array.add(obj);
         }
         return array;
     }
 
-    public JSONArray editarTipoDocumento(HttpServletRequest r) {
+    public JSONArray editarComoSupo(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        TiposDeDocumentos tipoDocumento = ejbTipoDocumento.traer(Integer.parseInt(r.getParameter("idTipoDocumento")));
-        if (tipoDocumento != null) {
-            tipoDocumento.setTipoDeDocumento(r.getParameter("tipoDocumento"));
-            tipoDocumento.setUltimaEdicion(fechaActual);
-            tipoDocumento = ejbTipoDocumento.editar(tipoDocumento);
+        ComoSupo comoSupo = ejbComoSupo.traer(Integer.parseInt(r.getParameter("idComoSupo")));
+        if (comoSupo != null) {
+            comoSupo.setComoSupo(r.getParameter("comoSupo"));
+            comoSupo.setUltimaEdicion(fechaActual);
+            comoSupo = ejbComoSupo.editar(comoSupo);
             obj = new JSONObject();
-            obj.put("idTipoDocumento", tipoDocumento.getIdTipoDeDocumento());
+            obj.put("idComoSupo", comoSupo.getIdComoSupo());
             array.add(obj);
         }
         return array;
     }
 
-    public Integer eliminarTipoDocumento(HttpServletRequest r) {
-        Integer ok = ejbTipoDocumento.eliminar(Integer.parseInt(r.getParameter("idTipoDocumento")));
+    public Integer eliminarComoSupo(HttpServletRequest r) {
+        Integer ok = ejbComoSupo.eliminar(Integer.parseInt(r.getParameter("idComoSupo")));
         return ok;
     }
 
     public JSONArray listarTiposDocumentos(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        List<TiposDeDocumentos> tiposDocumentos = ejbTipoDocumento.listar(sesion.clinica(r));
-        if (tiposDocumentos != null) {
-            for (TiposDeDocumentos tipoDocumento : tiposDocumentos) {
-                if (tipoDocumento.getEstado().equals("activo")) {
+        List<ComoSupo> comoSupos = ejbComoSupo.listar(sesion.clinica(r));
+        if (comoSupos != null) {
+            for (ComoSupo comoSupo : comoSupos) {
+                if (comoSupo.getEstado().equals("activo")) {
                     obj = new JSONObject();
-                    obj.put("idTipoDocumento", tipoDocumento.getIdTipoDeDocumento());
-                    obj.put("tipoDocumento", tipoDocumento.getTipoDeDocumento());
+                    obj.put("idComoSupo", comoSupo.getIdComoSupo());
+                    obj.put("comoSupo", comoSupo.getComoSupo());
                     array.add(obj);
                 }
             }
@@ -157,11 +165,11 @@ public class TiposDocumentosWeb extends HttpServlet {
     public JSONArray traerTiposDocumentos(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        TiposDeDocumentos tipoDocumento = ejbTipoDocumento.traer(Integer.parseInt(r.getParameter("idTipoDocumento")));
-        if (tipoDocumento != null) {
+        ComoSupo comoSupo = ejbComoSupo.traer(Integer.parseInt(r.getParameter("idComoSupo")));
+        if (comoSupo != null) {
             obj = new JSONObject();
-            obj.put("idTipoDocumento", tipoDocumento.getIdTipoDeDocumento());
-            obj.put("tipoDocumento", tipoDocumento.getTipoDeDocumento());
+            obj.put("idComoSupo", comoSupo.getIdComoSupo());
+            obj.put("comoSupo", comoSupo.getComoSupo());
             array.add(obj);
         }
         return array;
