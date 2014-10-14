@@ -117,9 +117,9 @@ public class EstadosPacientesWeb extends HttpServlet {
         estadoPaciente.setUltimaEdicion(fechaActual);
         estadoPaciente.setIdClinica(sesion.clinica(r.getSession()));
         estadoPaciente = ejbEstadoPaciente.guardar(estadoPaciente);
-        if (estadoPaciente.getIdEstadosPacientes() != null) {
+        if (estadoPaciente.getIdEstadoPaciente() != null) {
             obj = new JSONObject();
-            obj.put("idEstadoPaciente", estadoPaciente.getIdEstadosPacientes());
+            obj.put("idEstadoPaciente", estadoPaciente.getIdEstadoPaciente());
             array.add(obj);
         }
         return array;
@@ -128,20 +128,20 @@ public class EstadosPacientesWeb extends HttpServlet {
     public JSONArray editarEstadoPaciente(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        EstadosPacientes estadoPaciente = ejbEstadoPaciente.traer(Integer.parseInt(r.getParameter("idEstadosPacientes")));
+        EstadosPacientes estadoPaciente = ejbEstadoPaciente.traer(Integer.parseInt(r.getParameter("idEstadoPaciente")));
         if (estadoPaciente != null) {
             estadoPaciente.setEstadoPaciente(r.getParameter("estadoPaciente"));
             estadoPaciente.setUltimaEdicion(fechaActual);
             estadoPaciente = ejbEstadoPaciente.editar(estadoPaciente);
             obj = new JSONObject();
-            obj.put("idEstadoPaciente", estadoPaciente.getIdEstadosPacientes());
+            obj.put("idEstadoPaciente", estadoPaciente.getIdEstadoPaciente());
             array.add(obj);
         }
         return array;
     }
 
     public Integer eliminarEstadoPaciente(HttpServletRequest r) {
-        Integer ok = ejbEstadoPaciente.eliminar(Integer.parseInt(r.getParameter("idEstadosPacientes")));
+        Integer ok = ejbEstadoPaciente.eliminar(Integer.parseInt(r.getParameter("idEstadoPaciente")));
         return ok;
     }
 
@@ -153,7 +153,7 @@ public class EstadosPacientesWeb extends HttpServlet {
             for (EstadosPacientes estadoPaciente : estadoPacientes) {
                 if (estadoPaciente.getEstado().equals("activo")) {
                     obj = new JSONObject();
-                    obj.put("idEstadoPaciente", estadoPaciente.getIdEstadosPacientes());
+                    obj.put("idEstadoPaciente", estadoPaciente.getIdEstadoPaciente());
                     obj.put("estadoPaciente", estadoPaciente.getEstadoPaciente());
                     array.add(obj);
                 }
@@ -165,10 +165,10 @@ public class EstadosPacientesWeb extends HttpServlet {
     public JSONArray traerEstadoPaciente(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        EstadosPacientes estadoPaciente = ejbEstadoPaciente.traer(Integer.parseInt(r.getParameter("idEstadosPacientes")));
+        EstadosPacientes estadoPaciente = ejbEstadoPaciente.traer(Integer.parseInt(r.getParameter("idEstadoPaciente")));
         if (estadoPaciente != null) {
             obj = new JSONObject();
-            obj.put("idEstadoPaciente", estadoPaciente.getIdEstadosPacientes());
+            obj.put("idEstadoPaciente", estadoPaciente.getIdEstadoPaciente());
             obj.put("estadoPaciente", estadoPaciente.getEstadoPaciente());
             array.add(obj);
         }

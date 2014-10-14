@@ -118,9 +118,9 @@ public class CompaniasSeguroWeb extends HttpServlet {
         companiaSeguro.setUltimaEdicion(fechaActual);
         companiaSeguro.setIdClinica(sesion.clinica(r.getSession()));
         companiaSeguro = ejbCompaniaSeguro.guardar(companiaSeguro);
-        if (companiaSeguro.getIdCompaniaDeSeguros() != null) {
+        if (companiaSeguro.getIdCompaniaDeSeguro() != null) {
             obj = new JSONObject();
-            obj.put("idCompaniaSeguro", companiaSeguro.getIdCompaniaDeSeguros());
+            obj.put("idCompaniaSeguro", companiaSeguro.getIdCompaniaDeSeguro());
             array.add(obj);
         }
         return array;
@@ -136,14 +136,14 @@ public class CompaniasSeguroWeb extends HttpServlet {
             companiaSeguro.setUltimaEdicion(fechaActual);
             companiaSeguro = ejbCompaniaSeguro.editar(companiaSeguro);
             obj = new JSONObject();
-            obj.put("idCompaniaSeguro", companiaSeguro.getIdCompaniaDeSeguros());
+            obj.put("idCompaniaSeguro", companiaSeguro.getIdCompaniaDeSeguro());
             array.add(obj);
         }
         return array;
     }
 
     public Integer eliminarCompaniaDeSeguro(HttpServletRequest r) {
-        Integer ok = ejbCompaniaSeguro.eliminar(Integer.parseInt(r.getParameter("idCompaniaDeSeguro")));
+        Integer ok = ejbCompaniaSeguro.eliminar(Integer.parseInt(r.getParameter("idCompaniaSeguro")));
         return ok;
     }
 
@@ -155,7 +155,7 @@ public class CompaniasSeguroWeb extends HttpServlet {
             for (CompaniasDeSeguros companiaSeguro : tiposDocumentos) {
                 if (companiaSeguro.getEstado().equals("activo")) {
                     obj = new JSONObject();
-                    obj.put("idCompaniaSeguro", companiaSeguro.getIdCompaniaDeSeguros());
+                    obj.put("idCompaniaSeguro", companiaSeguro.getIdCompaniaDeSeguro());
                     obj.put("companiaSeguro", companiaSeguro.getCompaniaDeSeguro());
                     obj.put("codigoCompaniaSeguro", companiaSeguro.getCodigo());
                     array.add(obj);
@@ -171,7 +171,7 @@ public class CompaniasSeguroWeb extends HttpServlet {
         CompaniasDeSeguros companiaSeguro = ejbCompaniaSeguro.traer(Integer.parseInt(r.getParameter("idCompaniaSeguro")));
         if (companiaSeguro != null) {
             obj = new JSONObject();
-            obj.put("idCompaniaSeguro", companiaSeguro.getIdCompaniaDeSeguros());
+            obj.put("idCompaniaSeguro", companiaSeguro.getIdCompaniaDeSeguro());
             obj.put("companiaSeguro", companiaSeguro.getCompaniaDeSeguro());
             obj.put("codigoCompaniaSeguro", companiaSeguro.getCodigo());
             array.add(obj);
