@@ -17,8 +17,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import saludtec.admincloud.ejb.crud.ComoSupoEjb;
-import saludtec.admincloud.ejb.entidades.ComoSupo;
+import saludtec.admincloud.ejb.crud.EstratosSocialesEjb;
+import saludtec.admincloud.ejb.entidades.EstratosSociales;
 import saludtec.admincloud.web.utilidades.Sesion;
 import saludtec.admincloud.web.utilidades.Utils;
 
@@ -26,8 +26,8 @@ import saludtec.admincloud.web.utilidades.Utils;
  *
  * @author saintec
  */
-@WebServlet(name = "ComoSupoWeb", urlPatterns = {"/comoSupo/*"})
-public class ComoSupoWeb extends HttpServlet {
+@WebServlet(name = "EstratosSocialesWeb", urlPatterns = {"/estratosSociales/*"})
+public class EstratosSocialesWeb extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -38,7 +38,7 @@ public class ComoSupoWeb extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @EJB
-    ComoSupoEjb ejbComoSupo;
+    EstratosSocialesEjb ejbEstratoSocial;
     Sesion sesion = new Sesion();
     Date fechaActual = Utils.fecha();
 
@@ -56,21 +56,21 @@ public class ComoSupoWeb extends HttpServlet {
                 case "POST":
                     switch (servicio) {
                         case "/guardar":
-                            guardarComoSupo(request);
-                            listarTiposDocumentos(request).writeJSONString(out);
+                            guardarEstratosSociales(request);
+                            listarEstratosSociales(request).writeJSONString(out);
                             break;
 
                         case "/editar":
-                            editarComoSupo(request);
-                            listarTiposDocumentos(request).writeJSONString(out);
+                            editarEstratosSociales(request);
+                            listarEstratosSociales(request).writeJSONString(out);
                             break;
 
                         case "/eliminar":
-                            Integer rsp = eliminarComoSupo(request);
+                            Integer rsp = eliminarEstratosSociales(request);
                             if (rsp == 200) {
-                                listarTiposDocumentos(request).writeJSONString(out);
+                                listarEstratosSociales(request).writeJSONString(out);
                             } else {
-                                response.sendError(400, "Documento no eliminado");
+                                response.sendError(400, "Estrato social no eliminado");
                             }
                             break;
 
@@ -85,11 +85,11 @@ public class ComoSupoWeb extends HttpServlet {
                 case "GET":
                     switch (servicio) {
                         case "/listar":
-                            listarTiposDocumentos(request).writeJSONString(out);
+                            listarEstratosSociales(request).writeJSONString(out);
                             break;
 
                         case "/traer":
-                            traerTiposDocumentos(request).writeJSONString(out);
+                            traerEstratosSociales(request).writeJSONString(out);
                             break;
 
                         default:
@@ -107,54 +107,54 @@ public class ComoSupoWeb extends HttpServlet {
     }
 
     // <editor-fold defaultstate="collapsed" desc="Metodos CRUD tipos de documentos">
-    public JSONArray guardarComoSupo(HttpServletRequest r) {
+    public JSONArray guardarEstratosSociales(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        ComoSupo comoSupo = new ComoSupo();
-        comoSupo.setComoSupo(r.getParameter("comoSupo"));
-        comoSupo.setEstado("activo");
-        comoSupo.setFechaCreacion(fechaActual);
-        comoSupo.setUltimaEdicion(fechaActual);
-        comoSupo.setIdClinica(sesion.clinica(r.getSession()));
-        comoSupo = ejbComoSupo.guardar(comoSupo);
-        if (comoSupo.getIdComoSupo() != null) {
+        EstratosSociales estratoSocial = new EstratosSociales();
+        estratoSocial.setEstratoSocial(r.getParameter("estratoSocial"));
+        estratoSocial.setEstado("activo");
+        estratoSocial.setFechaCreacion(fechaActual);
+        estratoSocial.setUltimaEdicion(fechaActual);
+        estratoSocial.setIdClinica(sesion.clinica(r.getSession()));
+        estratoSocial = ejbEstratoSocial.guardar(estratoSocial);
+        if (estratoSocial.getEstratoSocial()!= null) {
             obj = new JSONObject();
-            obj.put("idComoSupo", comoSupo.getIdComoSupo());
+            obj.put("idEstratoSocial", estratoSocial.getIdEstratoSocial());
             array.add(obj);
         }
         return array;
     }
 
-    public JSONArray editarComoSupo(HttpServletRequest r) {
+    public JSONArray editarEstratosSociales(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        ComoSupo comoSupo = ejbComoSupo.traer(Integer.parseInt(r.getParameter("idComoSupo")));
-        if (comoSupo != null) {
-            comoSupo.setComoSupo(r.getParameter("comoSupo"));
-            comoSupo.setUltimaEdicion(fechaActual);
-            comoSupo = ejbComoSupo.editar(comoSupo);
+        EstratosSociales estratoSocial = ejbEstratoSocial.traer(Integer.parseInt(r.getParameter("idEstratoSocial")));
+        if (estratoSocial != null) {
+            estratoSocial.setEstratoSocial(r.getParameter("estratoSocial"));
+            estratoSocial.setUltimaEdicion(fechaActual);
+            estratoSocial = ejbEstratoSocial.editar(estratoSocial);
             obj = new JSONObject();
-            obj.put("idComoSupo", comoSupo.getIdComoSupo());
+            obj.put("idEstratoSocial", estratoSocial.getIdEstratoSocial());
             array.add(obj);
         }
         return array;
     }
 
-    public Integer eliminarComoSupo(HttpServletRequest r) {
-        Integer ok = ejbComoSupo.eliminar(Integer.parseInt(r.getParameter("idComoSupo")));
+    public Integer eliminarEstratosSociales(HttpServletRequest r) {
+        Integer ok = ejbEstratoSocial.eliminar(Integer.parseInt(r.getParameter("idEstratoSocial")));
         return ok;
     }
 
-    public JSONArray listarTiposDocumentos(HttpServletRequest r) {
+    public JSONArray listarEstratosSociales(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        List<ComoSupo> comoSupos = ejbComoSupo.listar(sesion.clinica(r.getSession()));
-        if (comoSupos != null) {
-            for (ComoSupo comoSupo : comoSupos) {
-                if (comoSupo.getEstado().equals("activo")) {
+        List<EstratosSociales> estratoSocials = ejbEstratoSocial.listar(sesion.clinica(r.getSession()));
+        if (estratoSocials != null) {
+            for (EstratosSociales estratoSocial : estratoSocials) {
+                if (estratoSocial.getEstado().equals("activo")) {
                     obj = new JSONObject();
-                    obj.put("idComoSupo", comoSupo.getIdComoSupo());
-                    obj.put("comoSupo", comoSupo.getComoSupo());
+                    obj.put("idEstratoSocial", estratoSocial.getIdEstratoSocial());
+                    obj.put("estratoSocial", estratoSocial.getEstratoSocial());
                     array.add(obj);
                 }
             }
@@ -162,14 +162,14 @@ public class ComoSupoWeb extends HttpServlet {
         return array;
     }
 
-    public JSONArray traerTiposDocumentos(HttpServletRequest r) {
+    public JSONArray traerEstratosSociales(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        ComoSupo comoSupo = ejbComoSupo.traer(Integer.parseInt(r.getParameter("idComoSupo")));
-        if (comoSupo != null) {
+        EstratosSociales estratoSocial = ejbEstratoSocial.traer(Integer.parseInt(r.getParameter("idEstratoSocial")));
+        if (estratoSocial != null) {
             obj = new JSONObject();
-            obj.put("idComoSupo", comoSupo.getIdComoSupo());
-            obj.put("comoSupo", comoSupo.getComoSupo());
+            obj.put("idEstratoSocial", estratoSocial.getIdEstratoSocial());
+            obj.put("estratoSocial", estratoSocial.getEstratoSocial());
             array.add(obj);
         }
         return array;

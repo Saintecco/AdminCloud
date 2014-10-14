@@ -107,7 +107,7 @@ public class TiposDocumentosWeb extends HttpServlet {
         tipoDocumento.setEstado("activo");
         tipoDocumento.setFechaCreacion(fechaActual);
         tipoDocumento.setUltimaEdicion(fechaActual);
-        tipoDocumento.setIdClinica(sesion.clinica(r));
+        tipoDocumento.setIdClinica(sesion.clinica(r.getSession()));
         tipoDocumento = ejbTipoDocumento.guardar(tipoDocumento);
         if (tipoDocumento.getIdTipoDeDocumento() != null) {
             obj = new JSONObject();
@@ -140,7 +140,7 @@ public class TiposDocumentosWeb extends HttpServlet {
     public JSONArray listarTiposDocumentos(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        List<TiposDeDocumentos> tiposDocumentos = ejbTipoDocumento.listar(sesion.clinica(r));
+        List<TiposDeDocumentos> tiposDocumentos = ejbTipoDocumento.listar(sesion.clinica(r.getSession()));
         if (tiposDocumentos != null) {
             for (TiposDeDocumentos tipoDocumento : tiposDocumentos) {
                 if (tipoDocumento.getEstado().equals("activo")) {

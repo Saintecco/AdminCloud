@@ -7,6 +7,7 @@
 package saludtec.admincloud.web.utilidades;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import saludtec.admincloud.ejb.entidades.Clinicas;
 
 /**
@@ -15,7 +16,7 @@ import saludtec.admincloud.ejb.entidades.Clinicas;
  */
 public class Sesion {
     
-     public Clinicas clinica (HttpServletRequest r){
+     public Clinicas clinica (HttpSession s){
         Clinicas clinica = new Clinicas();
         clinica.setIdClinica(1);
         return clinica;

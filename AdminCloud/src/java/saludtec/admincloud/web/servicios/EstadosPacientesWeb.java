@@ -17,8 +17,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import saludtec.admincloud.ejb.crud.ComoSupoEjb;
-import saludtec.admincloud.ejb.entidades.ComoSupo;
+import saludtec.admincloud.ejb.crud.EstadosPacientesEjb;
+import saludtec.admincloud.ejb.entidades.EstadosPacientes;
 import saludtec.admincloud.web.utilidades.Sesion;
 import saludtec.admincloud.web.utilidades.Utils;
 
@@ -26,8 +26,8 @@ import saludtec.admincloud.web.utilidades.Utils;
  *
  * @author saintec
  */
-@WebServlet(name = "ComoSupoWeb", urlPatterns = {"/comoSupo/*"})
-public class ComoSupoWeb extends HttpServlet {
+@WebServlet(name = "EstadosPacientesWeb", urlPatterns = {"/estadosPacientes/*"})
+public class EstadosPacientesWeb extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -38,7 +38,7 @@ public class ComoSupoWeb extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @EJB
-    ComoSupoEjb ejbComoSupo;
+    EstadosPacientesEjb ejbEstadoPaciente;
     Sesion sesion = new Sesion();
     Date fechaActual = Utils.fecha();
 
@@ -56,21 +56,21 @@ public class ComoSupoWeb extends HttpServlet {
                 case "POST":
                     switch (servicio) {
                         case "/guardar":
-                            guardarComoSupo(request);
-                            listarTiposDocumentos(request).writeJSONString(out);
+                            guardarEstadosPacientes(request);
+                            listarEstadosPacientes(request).writeJSONString(out);
                             break;
 
                         case "/editar":
-                            editarComoSupo(request);
-                            listarTiposDocumentos(request).writeJSONString(out);
+                            editarEstadosPacientes(request);
+                            listarEstadosPacientes(request).writeJSONString(out);
                             break;
 
                         case "/eliminar":
-                            Integer rsp = eliminarComoSupo(request);
+                            Integer rsp = eliminarEstadosPacientes(request);
                             if (rsp == 200) {
-                                listarTiposDocumentos(request).writeJSONString(out);
+                                listarEstadosPacientes(request).writeJSONString(out);
                             } else {
-                                response.sendError(400, "Documento no eliminado");
+                                response.sendError(400, "Estado paciente no eliminado");
                             }
                             break;
 
@@ -85,11 +85,11 @@ public class ComoSupoWeb extends HttpServlet {
                 case "GET":
                     switch (servicio) {
                         case "/listar":
-                            listarTiposDocumentos(request).writeJSONString(out);
+                            listarEstadosPacientes(request).writeJSONString(out);
                             break;
 
                         case "/traer":
-                            traerTiposDocumentos(request).writeJSONString(out);
+                            traerEstadosPacientes(request).writeJSONString(out);
                             break;
 
                         default:
@@ -107,54 +107,54 @@ public class ComoSupoWeb extends HttpServlet {
     }
 
     // <editor-fold defaultstate="collapsed" desc="Metodos CRUD tipos de documentos">
-    public JSONArray guardarComoSupo(HttpServletRequest r) {
+    public JSONArray guardarEstadosPacientes(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        ComoSupo comoSupo = new ComoSupo();
-        comoSupo.setComoSupo(r.getParameter("comoSupo"));
-        comoSupo.setEstado("activo");
-        comoSupo.setFechaCreacion(fechaActual);
-        comoSupo.setUltimaEdicion(fechaActual);
-        comoSupo.setIdClinica(sesion.clinica(r.getSession()));
-        comoSupo = ejbComoSupo.guardar(comoSupo);
-        if (comoSupo.getIdComoSupo() != null) {
+        EstadosPacientes estadoPaciente = new EstadosPacientes();
+        estadoPaciente.setEstadoPaciente(r.getParameter("estadoPaciente"));
+        estadoPaciente.setEstado("activo");
+        estadoPaciente.setFechaCreacion(fechaActual);
+        estadoPaciente.setUltimaEdicion(fechaActual);
+        estadoPaciente.setIdClinica(sesion.clinica(r.getSession()));
+        estadoPaciente = ejbEstadoPaciente.guardar(estadoPaciente);
+        if (estadoPaciente.getIdEstadosPacientes() != null) {
             obj = new JSONObject();
-            obj.put("idComoSupo", comoSupo.getIdComoSupo());
+            obj.put("idEstadoPaciente", estadoPaciente.getIdEstadosPacientes());
             array.add(obj);
         }
         return array;
     }
 
-    public JSONArray editarComoSupo(HttpServletRequest r) {
+    public JSONArray editarEstadosPacientes(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        ComoSupo comoSupo = ejbComoSupo.traer(Integer.parseInt(r.getParameter("idComoSupo")));
-        if (comoSupo != null) {
-            comoSupo.setComoSupo(r.getParameter("comoSupo"));
-            comoSupo.setUltimaEdicion(fechaActual);
-            comoSupo = ejbComoSupo.editar(comoSupo);
+        EstadosPacientes estadoPaciente = ejbEstadoPaciente.traer(Integer.parseInt(r.getParameter("idEstadosPacientes")));
+        if (estadoPaciente != null) {
+            estadoPaciente.setEstadoPaciente(r.getParameter("estadoPaciente"));
+            estadoPaciente.setUltimaEdicion(fechaActual);
+            estadoPaciente = ejbEstadoPaciente.editar(estadoPaciente);
             obj = new JSONObject();
-            obj.put("idComoSupo", comoSupo.getIdComoSupo());
+            obj.put("idEstadoPaciente", estadoPaciente.getIdEstadosPacientes());
             array.add(obj);
         }
         return array;
     }
 
-    public Integer eliminarComoSupo(HttpServletRequest r) {
-        Integer ok = ejbComoSupo.eliminar(Integer.parseInt(r.getParameter("idComoSupo")));
+    public Integer eliminarEstadosPacientes(HttpServletRequest r) {
+        Integer ok = ejbEstadoPaciente.eliminar(Integer.parseInt(r.getParameter("idEstadosPacientes")));
         return ok;
     }
 
-    public JSONArray listarTiposDocumentos(HttpServletRequest r) {
+    public JSONArray listarEstadosPacientes(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        List<ComoSupo> comoSupos = ejbComoSupo.listar(sesion.clinica(r.getSession()));
-        if (comoSupos != null) {
-            for (ComoSupo comoSupo : comoSupos) {
-                if (comoSupo.getEstado().equals("activo")) {
+        List<EstadosPacientes> estadoPacientes = ejbEstadoPaciente.listar(sesion.clinica(r.getSession()));
+        if (estadoPacientes != null) {
+            for (EstadosPacientes estadoPaciente : estadoPacientes) {
+                if (estadoPaciente.getEstado().equals("activo")) {
                     obj = new JSONObject();
-                    obj.put("idComoSupo", comoSupo.getIdComoSupo());
-                    obj.put("comoSupo", comoSupo.getComoSupo());
+                    obj.put("idEstadoPaciente", estadoPaciente.getIdEstadosPacientes());
+                    obj.put("estadoPaciente", estadoPaciente.getEstadoPaciente());
                     array.add(obj);
                 }
             }
@@ -162,14 +162,14 @@ public class ComoSupoWeb extends HttpServlet {
         return array;
     }
 
-    public JSONArray traerTiposDocumentos(HttpServletRequest r) {
+    public JSONArray traerEstadosPacientes(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        ComoSupo comoSupo = ejbComoSupo.traer(Integer.parseInt(r.getParameter("idComoSupo")));
-        if (comoSupo != null) {
+        EstadosPacientes estadoPaciente = ejbEstadoPaciente.traer(Integer.parseInt(r.getParameter("idEstadosPacientes")));
+        if (estadoPaciente != null) {
             obj = new JSONObject();
-            obj.put("idComoSupo", comoSupo.getIdComoSupo());
-            obj.put("comoSupo", comoSupo.getComoSupo());
+            obj.put("idEstadoPaciente", estadoPaciente.getIdEstadosPacientes());
+            obj.put("estadoPaciente", estadoPaciente.getEstadoPaciente());
             array.add(obj);
         }
         return array;

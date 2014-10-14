@@ -117,7 +117,7 @@ public class TiposVinculacionWeb extends HttpServlet {
         tipoVinculacion.setEstado("activo");
         tipoVinculacion.setFechaCreacion(fechaActual);
         tipoVinculacion.setUltimaEdicion(fechaActual);
-        tipoVinculacion.setIdClinica(sesion.clinica(r));
+        tipoVinculacion.setIdClinica(sesion.clinica(r.getSession()));
         tipoVinculacion = ejbTipoVinculacion.guardar(tipoVinculacion);
         if (tipoVinculacion.getIdTipoDeVinculacion() != null) {
             obj = new JSONObject();
@@ -150,7 +150,7 @@ public class TiposVinculacionWeb extends HttpServlet {
     public JSONArray listarTiposVinculacion(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        List<TiposDeVinculacion> tiposDocumentos = ejbTipoVinculacion.listar(sesion.clinica(r));
+        List<TiposDeVinculacion> tiposDocumentos = ejbTipoVinculacion.listar(sesion.clinica(r.getSession()));
         if (tiposDocumentos != null) {
             for (TiposDeVinculacion tipoVinculacion : tiposDocumentos) {
                 if (tipoVinculacion.getEstado().equals("activo")) {

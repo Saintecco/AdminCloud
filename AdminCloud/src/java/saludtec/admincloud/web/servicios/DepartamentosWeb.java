@@ -116,7 +116,7 @@ public class DepartamentosWeb extends HttpServlet {
         departamento.setEstado("activo");
         departamento.setFechaCreacion(fechaActual);
         departamento.setUltimaEdicion(fechaActual);
-        departamento.setIdClinica(sesion.clinica(r));
+        departamento.setIdClinica(sesion.clinica(r.getSession()));
         departamento = ejbDepartamento.guardar(departamento);
         if (departamento.getIdDepartamento() != null) {
             obj = new JSONObject();
@@ -150,7 +150,7 @@ public class DepartamentosWeb extends HttpServlet {
     public JSONArray listarDepartamentos(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        List<Departamentos> tiposDocumentos = ejbDepartamento.listar(sesion.clinica(r));
+        List<Departamentos> tiposDocumentos = ejbDepartamento.listar(sesion.clinica(r.getSession()));
         if (tiposDocumentos != null) {
             for (Departamentos departamento : tiposDocumentos) {
                 if (departamento.getEstado().equals("activo")) {
