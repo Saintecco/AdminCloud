@@ -40,7 +40,7 @@ public class EstadosPacientesWeb extends HttpServlet {
     @EJB
     EstadosPacientesEjb ejbEstadoPaciente;
     Sesion sesion = new Sesion();
-    Date fechaActual = Utils.fecha();
+    Date fechaActual = Utils.fechaCompleta();
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -56,17 +56,17 @@ public class EstadosPacientesWeb extends HttpServlet {
                 case "POST":
                     switch (servicio) {
                         case "/guardar":
-                            guardarEstadosPacientes(request);
+                            guardarEstadoPaciente(request);
                             listarEstadosPacientes(request).writeJSONString(out);
                             break;
 
                         case "/editar":
-                            editarEstadosPacientes(request);
+                            editarEstadoPaciente(request);
                             listarEstadosPacientes(request).writeJSONString(out);
                             break;
 
                         case "/eliminar":
-                            Integer rsp = eliminarEstadosPacientes(request);
+                            Integer rsp = eliminarEstadoPaciente(request);
                             if (rsp == 200) {
                                 listarEstadosPacientes(request).writeJSONString(out);
                             } else {
@@ -89,7 +89,7 @@ public class EstadosPacientesWeb extends HttpServlet {
                             break;
 
                         case "/traer":
-                            traerEstadosPacientes(request).writeJSONString(out);
+                            traerEstadoPaciente(request).writeJSONString(out);
                             break;
 
                         default:
@@ -107,7 +107,7 @@ public class EstadosPacientesWeb extends HttpServlet {
     }
 
     // <editor-fold defaultstate="collapsed" desc="Metodos CRUD tipos de documentos">
-    public JSONArray guardarEstadosPacientes(HttpServletRequest r) {
+    public JSONArray guardarEstadoPaciente(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
         EstadosPacientes estadoPaciente = new EstadosPacientes();
@@ -125,7 +125,7 @@ public class EstadosPacientesWeb extends HttpServlet {
         return array;
     }
 
-    public JSONArray editarEstadosPacientes(HttpServletRequest r) {
+    public JSONArray editarEstadoPaciente(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
         EstadosPacientes estadoPaciente = ejbEstadoPaciente.traer(Integer.parseInt(r.getParameter("idEstadosPacientes")));
@@ -140,7 +140,7 @@ public class EstadosPacientesWeb extends HttpServlet {
         return array;
     }
 
-    public Integer eliminarEstadosPacientes(HttpServletRequest r) {
+    public Integer eliminarEstadoPaciente(HttpServletRequest r) {
         Integer ok = ejbEstadoPaciente.eliminar(Integer.parseInt(r.getParameter("idEstadosPacientes")));
         return ok;
     }
@@ -162,7 +162,7 @@ public class EstadosPacientesWeb extends HttpServlet {
         return array;
     }
 
-    public JSONArray traerEstadosPacientes(HttpServletRequest r) {
+    public JSONArray traerEstadoPaciente(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
         EstadosPacientes estadoPaciente = ejbEstadoPaciente.traer(Integer.parseInt(r.getParameter("idEstadosPacientes")));

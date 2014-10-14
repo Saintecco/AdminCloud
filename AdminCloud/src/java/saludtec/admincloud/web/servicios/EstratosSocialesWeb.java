@@ -40,7 +40,7 @@ public class EstratosSocialesWeb extends HttpServlet {
     @EJB
     EstratosSocialesEjb ejbEstratoSocial;
     Sesion sesion = new Sesion();
-    Date fechaActual = Utils.fecha();
+    Date fechaActual = Utils.fechaCompleta();
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -56,17 +56,17 @@ public class EstratosSocialesWeb extends HttpServlet {
                 case "POST":
                     switch (servicio) {
                         case "/guardar":
-                            guardarEstratosSociales(request);
+                            guardarEstratoSocial(request);
                             listarEstratosSociales(request).writeJSONString(out);
                             break;
 
                         case "/editar":
-                            editarEstratosSociales(request);
+                            editarEstratoSocial(request);
                             listarEstratosSociales(request).writeJSONString(out);
                             break;
 
                         case "/eliminar":
-                            Integer rsp = eliminarEstratosSociales(request);
+                            Integer rsp = eliminarEstratoSocial(request);
                             if (rsp == 200) {
                                 listarEstratosSociales(request).writeJSONString(out);
                             } else {
@@ -89,7 +89,7 @@ public class EstratosSocialesWeb extends HttpServlet {
                             break;
 
                         case "/traer":
-                            traerEstratosSociales(request).writeJSONString(out);
+                            traerEstratoSocial(request).writeJSONString(out);
                             break;
 
                         default:
@@ -107,7 +107,7 @@ public class EstratosSocialesWeb extends HttpServlet {
     }
 
     // <editor-fold defaultstate="collapsed" desc="Metodos CRUD tipos de documentos">
-    public JSONArray guardarEstratosSociales(HttpServletRequest r) {
+    public JSONArray guardarEstratoSocial(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
         EstratosSociales estratoSocial = new EstratosSociales();
@@ -125,7 +125,7 @@ public class EstratosSocialesWeb extends HttpServlet {
         return array;
     }
 
-    public JSONArray editarEstratosSociales(HttpServletRequest r) {
+    public JSONArray editarEstratoSocial(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
         EstratosSociales estratoSocial = ejbEstratoSocial.traer(Integer.parseInt(r.getParameter("idEstratoSocial")));
@@ -140,7 +140,7 @@ public class EstratosSocialesWeb extends HttpServlet {
         return array;
     }
 
-    public Integer eliminarEstratosSociales(HttpServletRequest r) {
+    public Integer eliminarEstratoSocial(HttpServletRequest r) {
         Integer ok = ejbEstratoSocial.eliminar(Integer.parseInt(r.getParameter("idEstratoSocial")));
         return ok;
     }
@@ -162,7 +162,7 @@ public class EstratosSocialesWeb extends HttpServlet {
         return array;
     }
 
-    public JSONArray traerEstratosSociales(HttpServletRequest r) {
+    public JSONArray traerEstratoSocial(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
         EstratosSociales estratoSocial = ejbEstratoSocial.traer(Integer.parseInt(r.getParameter("idEstratoSocial")));

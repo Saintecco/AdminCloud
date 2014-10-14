@@ -40,7 +40,7 @@ public class ComoSupoWeb extends HttpServlet {
     @EJB
     ComoSupoEjb ejbComoSupo;
     Sesion sesion = new Sesion();
-    Date fechaActual = Utils.fecha();
+    Date fechaActual = Utils.fechaCompleta();
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -57,18 +57,18 @@ public class ComoSupoWeb extends HttpServlet {
                     switch (servicio) {
                         case "/guardar":
                             guardarComoSupo(request);
-                            listarTiposDocumentos(request).writeJSONString(out);
+                            listarComoSupo(request).writeJSONString(out);
                             break;
 
                         case "/editar":
                             editarComoSupo(request);
-                            listarTiposDocumentos(request).writeJSONString(out);
+                            listarComoSupo(request).writeJSONString(out);
                             break;
 
                         case "/eliminar":
                             Integer rsp = eliminarComoSupo(request);
                             if (rsp == 200) {
-                                listarTiposDocumentos(request).writeJSONString(out);
+                                listarComoSupo(request).writeJSONString(out);
                             } else {
                                 response.sendError(400, "Documento no eliminado");
                             }
@@ -85,11 +85,11 @@ public class ComoSupoWeb extends HttpServlet {
                 case "GET":
                     switch (servicio) {
                         case "/listar":
-                            listarTiposDocumentos(request).writeJSONString(out);
+                            listarComoSupo(request).writeJSONString(out);
                             break;
 
                         case "/traer":
-                            traerTiposDocumentos(request).writeJSONString(out);
+                            traerComoSupo(request).writeJSONString(out);
                             break;
 
                         default:
@@ -145,7 +145,7 @@ public class ComoSupoWeb extends HttpServlet {
         return ok;
     }
 
-    public JSONArray listarTiposDocumentos(HttpServletRequest r) {
+    public JSONArray listarComoSupo(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
         List<ComoSupo> comoSupos = ejbComoSupo.listar(sesion.clinica(r.getSession()));
@@ -162,7 +162,7 @@ public class ComoSupoWeb extends HttpServlet {
         return array;
     }
 
-    public JSONArray traerTiposDocumentos(HttpServletRequest r) {
+    public JSONArray traerComoSupo(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
         ComoSupo comoSupo = ejbComoSupo.traer(Integer.parseInt(r.getParameter("idComoSupo")));

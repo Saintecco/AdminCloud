@@ -15,7 +15,7 @@ import java.util.Date;
  */
 public class Utils {
     
-    public static Date fecha(){
+    public static Date fechaCompleta(){
         Date calendario = new Date();
         Date fecha = new Timestamp(calendario.getTime());
         return fecha;

@@ -32,7 +32,7 @@ public class TiposDocumentosWeb extends HttpServlet {
     @EJB
     TiposDocumentosEjb ejbTipoDocumento;
     Sesion sesion = new Sesion();
-    Date fechaActual = Utils.fecha();
+    Date fechaActual = Utils.fechaCompleta();
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -43,7 +43,7 @@ public class TiposDocumentosWeb extends HttpServlet {
             String servicio = request.getPathInfo();
             String metodo = request.getMethod();
             switch (metodo) {
-
+                
                 // <editor-fold defaultstate="collapsed" desc="Servicios soportados por metodo POST">
                 case "POST":
                     switch (servicio) {
@@ -81,7 +81,7 @@ public class TiposDocumentosWeb extends HttpServlet {
                             break;
 
                         case "/traer":
-                            traerTiposDocumentos(request).writeJSONString(out);
+                            traerTipoDocumento(request).writeJSONString(out);
                             break;
 
                         default:
@@ -154,7 +154,7 @@ public class TiposDocumentosWeb extends HttpServlet {
         return array;
     }
 
-    public JSONArray traerTiposDocumentos(HttpServletRequest r) {
+    public JSONArray traerTipoDocumento(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
         TiposDeDocumentos tipoDocumento = ejbTipoDocumento.traer(Integer.parseInt(r.getParameter("idTipoDocumento")));

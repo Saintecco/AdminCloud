@@ -40,7 +40,7 @@ public class DepartamentosWeb extends HttpServlet {
     @EJB
     DepartamentosEjb ejbDepartamento;
     Sesion sesion = new Sesion();
-    Date fechaActual = Utils.fecha();
+    Date fechaActual = Utils.fechaCompleta();
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

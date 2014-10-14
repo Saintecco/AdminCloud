@@ -42,7 +42,7 @@ public class TiposVinculacionWeb extends HttpServlet {
     @EJB
     TiposVinculacionEjb ejbTipoVinculacion;
     Sesion sesion = new Sesion();
-    Date fechaActual=Utils.fecha();
+    Date fechaActual=Utils.fechaCompleta();
     
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -58,17 +58,17 @@ public class TiposVinculacionWeb extends HttpServlet {
                 case "POST":
                     switch (servicio) {
                         case "/guardar":
-                            guardarTipoDocumento(request);
+                            guardarTipoVinculacion(request);
                             listarTiposVinculacion(request).writeJSONString(out);
                             break;
 
                         case "/editar":
-                            editarTipoDocumento(request);
+                            editarTipoVinculacion(request);
                             listarTiposVinculacion(request).writeJSONString(out);
                             break;
 
                         case "/eliminar":
-                            Integer rsp = eliminarTipoDocumento(request);
+                            Integer rsp = eliminarTipoVinculacion(request);
                             if (rsp == 200) {
                                 listarTiposVinculacion(request).writeJSONString(out);
                             } else {
@@ -91,7 +91,7 @@ public class TiposVinculacionWeb extends HttpServlet {
                             break;
 
                         case "/traer":
-                            traerTiposDocumentos(request).writeJSONString(out);
+                            traerTipoVinculacion(request).writeJSONString(out);
                             break;
 
                         default:
@@ -109,7 +109,7 @@ public class TiposVinculacionWeb extends HttpServlet {
     }
 
     // <editor-fold defaultstate="collapsed" desc="Metodos CRUD tipos de documentos">
-    public JSONArray guardarTipoDocumento(HttpServletRequest r) {
+    public JSONArray guardarTipoVinculacion(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
         TiposDeVinculacion tipoVinculacion = new TiposDeVinculacion();
@@ -127,7 +127,7 @@ public class TiposVinculacionWeb extends HttpServlet {
         return array;
     }
 
-    public JSONArray editarTipoDocumento(HttpServletRequest r) {
+    public JSONArray editarTipoVinculacion(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
         TiposDeVinculacion tipoVinculacion = ejbTipoVinculacion.traer(Integer.parseInt(r.getParameter("idTipoVinculacion")));
@@ -142,7 +142,7 @@ public class TiposVinculacionWeb extends HttpServlet {
         return array;
     }
 
-    public Integer eliminarTipoDocumento(HttpServletRequest r) {
+    public Integer eliminarTipoVinculacion(HttpServletRequest r) {
         Integer ok = ejbTipoVinculacion.eliminar(Integer.parseInt(r.getParameter("idTipoVinculacion")));
         return ok;
     }
@@ -164,7 +164,7 @@ public class TiposVinculacionWeb extends HttpServlet {
         return array;
     }
 
-    public JSONArray traerTiposDocumentos(HttpServletRequest r) {
+    public JSONArray traerTipoVinculacion(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
         TiposDeVinculacion tipoVinculacion = ejbTipoVinculacion.traer(Integer.parseInt(r.getParameter("idTipoVinculacion")));
