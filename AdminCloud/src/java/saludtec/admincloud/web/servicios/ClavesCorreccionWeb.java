@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+
 package saludtec.admincloud.web.servicios;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
-import java.util.List;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -17,17 +17,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import saludtec.admincloud.ejb.crud.ComoSupoEjb;
-import saludtec.admincloud.ejb.entidades.ComoSupo;
-import saludtec.admincloud.web.utilidades.Sesion;
+import saludtec.admincloud.ejb.crud.ClavesCorreccionEjb;
+import saludtec.admincloud.ejb.entidades.ClavesCorreccionFactura;
 import saludtec.admincloud.web.utilidades.Calendario;
+import saludtec.admincloud.web.utilidades.Sesion;
 
 /**
  *
  * @author saintec
  */
-@WebServlet(name = "ComoSupoWeb", urlPatterns = {"/comoSupo/*"})
-public class ComoSupoWeb extends HttpServlet {
+@WebServlet(name = "ClavesCorreccionWeb", urlPatterns = {"/claveCorreccion/*"})
+public class ClavesCorreccionWeb extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -37,8 +37,9 @@ public class ComoSupoWeb extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
+    
     @EJB
-    ComoSupoEjb ejbComoSupo;
+    ClavesCorreccionEjb ejbClaveCorreccion;
     Sesion sesion = new Sesion();
     Date fechaActual = Calendario.fechaCompleta();
 
@@ -56,40 +57,15 @@ public class ComoSupoWeb extends HttpServlet {
                 case "POST":
                     switch (servicio) {
                         case "/guardar":
-                            guardarComoSupo(request);
-                            listarComoSupo(request).writeJSONString(out);
+                            guardarClaveCorreccion(request).writeJSONString(out);
                             break;
 
                         case "/editar":
-                            editarComoSupo(request);
-                            listarComoSupo(request).writeJSONString(out);
-                            break;
-
-                        case "/eliminar":
-                            Integer rsp = eliminarComoSupo(request);
-                            if (rsp == 200) {
-                                listarComoSupo(request).writeJSONString(out);
-                            } else {
-                                response.sendError(400, "Documento no eliminado");
-                            }
-                            break;
-
-                        default:
-                            response.sendError(404, "Servicio " + servicio + " no existe");
-                            break;
-                    }
-                    break;
-                // </editor-fold>
-
-                // <editor-fold defaultstate="collapsed" desc="Servicios soportados por metodo GET">
-                case "GET":
-                    switch (servicio) {
-                        case "/listar":
-                            listarComoSupo(request).writeJSONString(out);
+                            editarClaveCorreccion(request).writeJSONString(out);
                             break;
 
                         case "/traer":
-                            traerComoSupo(request).writeJSONString(out);
+                            traerClaveCorreccion(request).writeJSONString(out);
                             break;
 
                         default:
@@ -107,69 +83,46 @@ public class ComoSupoWeb extends HttpServlet {
     }
 
     // <editor-fold defaultstate="collapsed" desc="Metodos CRUD tipos de documentos">
-    public JSONArray guardarComoSupo(HttpServletRequest r) {
+    public JSONArray guardarClaveCorreccion(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        ComoSupo comoSupo = new ComoSupo();
-        comoSupo.setComoSupo(r.getParameter("comoSupo"));
-        comoSupo.setEstado("activo");
-        comoSupo.setFechaCreacion(fechaActual);
-        comoSupo.setUltimaEdicion(fechaActual);
-        comoSupo.setIdClinica(sesion.clinica(r.getSession()));
-        comoSupo = ejbComoSupo.guardar(comoSupo);
-        if (comoSupo.getIdComoSupo() != null) {
+        ClavesCorreccionFactura claveCorreccion = new ClavesCorreccionFactura();
+        claveCorreccion.setClaveCorreccionFactura(r.getParameter("claveCorreccion"));
+        claveCorreccion.setFechaCreacion(fechaActual);
+        claveCorreccion.setUltimaEdicion(fechaActual);
+        claveCorreccion.setIdClinica(sesion.clinica(r.getSession()));
+        claveCorreccion = ejbClaveCorreccion.guardar(claveCorreccion);
+        if (claveCorreccion.getIdClaveCorreccionFactura() != null) {
             obj = new JSONObject();
-            obj.put("idComoSupo", comoSupo.getIdComoSupo());
+            obj.put("claveCorreccion", "Clave creada con exito");
             array.add(obj);
         }
         return array;
     }
 
-    public JSONArray editarComoSupo(HttpServletRequest r) {
+    public JSONArray editarClaveCorreccion(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        ComoSupo comoSupo = ejbComoSupo.traer(Integer.parseInt(r.getParameter("idComoSupo")));
-        if (comoSupo != null) {
-            comoSupo.setComoSupo(r.getParameter("comoSupo"));
-            comoSupo.setUltimaEdicion(fechaActual);
-            comoSupo = ejbComoSupo.editar(comoSupo);
+        ClavesCorreccionFactura claveCorreccion = ejbClaveCorreccion.traer((r.getParameter("claveCorreccion")), sesion.clinica(r.getSession()));
+        if (claveCorreccion != null) {
+            claveCorreccion.setClaveCorreccionFactura(r.getParameter("claveCorreccion"));
+            claveCorreccion.setUltimaEdicion(fechaActual);
+            claveCorreccion = ejbClaveCorreccion.editar(claveCorreccion);
             obj = new JSONObject();
-            obj.put("idComoSupo", comoSupo.getIdComoSupo());
+            obj.put("claveCorreccion", "Clave editada con exito");
             array.add(obj);
         }
         return array;
     }
 
-    public Integer eliminarComoSupo(HttpServletRequest r) {
-        Integer ok = ejbComoSupo.eliminar(Integer.parseInt(r.getParameter("idComoSupo")));
-        return ok;
-    }
 
-    public JSONArray listarComoSupo(HttpServletRequest r) {
+    public JSONArray traerClaveCorreccion(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        List<ComoSupo> comoSupos = ejbComoSupo.listar(sesion.clinica(r.getSession()));
-        if (comoSupos != null) {
-            for (ComoSupo comoSupo : comoSupos) {
-                if (comoSupo.getEstado().equals("activo")) {
-                    obj = new JSONObject();
-                    obj.put("idComoSupo", comoSupo.getIdComoSupo());
-                    obj.put("comoSupo", comoSupo.getComoSupo());
-                    array.add(obj);
-                }
-            }
-        }
-        return array;
-    }
-
-    public JSONArray traerComoSupo(HttpServletRequest r) {
-        JSONArray array = new JSONArray();
-        JSONObject obj = null;
-        ComoSupo comoSupo = ejbComoSupo.traer(Integer.parseInt(r.getParameter("idComoSupo")));
-        if (comoSupo != null) {
+        ClavesCorreccionFactura claveCorreccion = ejbClaveCorreccion.traer((r.getParameter("claveCorreccion")), sesion.clinica(r.getSession()));
+        if (claveCorreccion != null) {
             obj = new JSONObject();
-            obj.put("idComoSupo", comoSupo.getIdComoSupo());
-            obj.put("comoSupo", comoSupo.getComoSupo());
+            obj.put("claveCorreccion", "Acceso ok");
             array.add(obj);
         }
         return array;

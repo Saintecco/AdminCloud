@@ -20,7 +20,7 @@ import org.json.simple.JSONObject;
 import saludtec.admincloud.ejb.crud.TiposDocumentosEjb;
 import saludtec.admincloud.ejb.entidades.TiposDeDocumentos;
 import saludtec.admincloud.web.utilidades.Sesion;
-import saludtec.admincloud.web.utilidades.Utils;
+import saludtec.admincloud.web.utilidades.Calendario;
 
 /**
  *
@@ -32,7 +32,7 @@ public class TiposDocumentosWeb extends HttpServlet {
     @EJB
     TiposDocumentosEjb ejbTipoDocumento;
     Sesion sesion = new Sesion();
-    Date fechaActual = Utils.fechaCompleta();
+    Date fechaActual = Calendario.fechaCompleta();
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

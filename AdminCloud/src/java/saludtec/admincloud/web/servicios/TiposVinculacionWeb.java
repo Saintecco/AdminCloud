@@ -21,7 +21,7 @@ import org.json.simple.JSONObject;
 import saludtec.admincloud.ejb.crud.TiposVinculacionEjb;
 import saludtec.admincloud.ejb.entidades.TiposDeVinculacion;
 import saludtec.admincloud.web.utilidades.Sesion;
-import saludtec.admincloud.web.utilidades.Utils;
+import saludtec.admincloud.web.utilidades.Calendario;
 
 /**
  *
@@ -42,7 +42,7 @@ public class TiposVinculacionWeb extends HttpServlet {
     @EJB
     TiposVinculacionEjb ejbTipoVinculacion;
     Sesion sesion = new Sesion();
-    Date fechaActual=Utils.fechaCompleta();
+    Date fechaActual=Calendario.fechaCompleta();
     
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

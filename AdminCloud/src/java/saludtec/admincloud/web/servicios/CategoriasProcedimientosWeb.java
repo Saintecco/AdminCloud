@@ -17,17 +17,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import saludtec.admincloud.ejb.crud.ComoSupoEjb;
-import saludtec.admincloud.ejb.entidades.ComoSupo;
-import saludtec.admincloud.web.utilidades.Sesion;
+import saludtec.admincloud.ejb.crud.CategoriasProcedimientosEjb;
+import saludtec.admincloud.ejb.entidades.CategoriasProcedimientos;
 import saludtec.admincloud.web.utilidades.Calendario;
+import saludtec.admincloud.web.utilidades.Sesion;
 
 /**
  *
  * @author saintec
  */
-@WebServlet(name = "ComoSupoWeb", urlPatterns = {"/comoSupo/*"})
-public class ComoSupoWeb extends HttpServlet {
+@WebServlet(name = "CategoriasProcedimientosWeb", urlPatterns = {"/categoriasProcedimientos/*"})
+public class CategoriasProcedimientosWeb extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -38,7 +38,7 @@ public class ComoSupoWeb extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @EJB
-    ComoSupoEjb ejbComoSupo;
+    CategoriasProcedimientosEjb ejbCategoriaProcedimiento;
     Sesion sesion = new Sesion();
     Date fechaActual = Calendario.fechaCompleta();
 
@@ -56,21 +56,21 @@ public class ComoSupoWeb extends HttpServlet {
                 case "POST":
                     switch (servicio) {
                         case "/guardar":
-                            guardarComoSupo(request);
-                            listarComoSupo(request).writeJSONString(out);
+                            guardarCategoriaProcedimiento(request);
+                            listarCategoriasProcedimientos(request).writeJSONString(out);
                             break;
 
                         case "/editar":
-                            editarComoSupo(request);
-                            listarComoSupo(request).writeJSONString(out);
+                            editarCategoriaProcedimiento(request);
+                            listarCategoriasProcedimientos(request).writeJSONString(out);
                             break;
 
                         case "/eliminar":
-                            Integer rsp = eliminarComoSupo(request);
+                            Integer rsp = eliminarCategoriaProcedimiento(request);
                             if (rsp == 200) {
-                                listarComoSupo(request).writeJSONString(out);
+                                listarCategoriasProcedimientos(request).writeJSONString(out);
                             } else {
-                                response.sendError(400, "Documento no eliminado");
+                                response.sendError(400, "Categoria procedimiento no eliminado");
                             }
                             break;
 
@@ -85,11 +85,11 @@ public class ComoSupoWeb extends HttpServlet {
                 case "GET":
                     switch (servicio) {
                         case "/listar":
-                            listarComoSupo(request).writeJSONString(out);
+                            listarCategoriasProcedimientos(request).writeJSONString(out);
                             break;
 
                         case "/traer":
-                            traerComoSupo(request).writeJSONString(out);
+                            traerCategoriaProcedimiento(request).writeJSONString(out);
                             break;
 
                         default:
@@ -107,54 +107,54 @@ public class ComoSupoWeb extends HttpServlet {
     }
 
     // <editor-fold defaultstate="collapsed" desc="Metodos CRUD tipos de documentos">
-    public JSONArray guardarComoSupo(HttpServletRequest r) {
+    public JSONArray guardarCategoriaProcedimiento(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        ComoSupo comoSupo = new ComoSupo();
-        comoSupo.setComoSupo(r.getParameter("comoSupo"));
-        comoSupo.setEstado("activo");
-        comoSupo.setFechaCreacion(fechaActual);
-        comoSupo.setUltimaEdicion(fechaActual);
-        comoSupo.setIdClinica(sesion.clinica(r.getSession()));
-        comoSupo = ejbComoSupo.guardar(comoSupo);
-        if (comoSupo.getIdComoSupo() != null) {
+        CategoriasProcedimientos categoriaProcedimiento = new CategoriasProcedimientos();
+        categoriaProcedimiento.setCategoriaProcedimiento(r.getParameter("categoriaProcedimiento"));
+        categoriaProcedimiento.setEstado("activo");
+        categoriaProcedimiento.setFechaCreacion(fechaActual);
+        categoriaProcedimiento.setUltimaEdicion(fechaActual);
+        categoriaProcedimiento.setIdClinica(sesion.clinica(r.getSession()));
+        categoriaProcedimiento = ejbCategoriaProcedimiento.guardar(categoriaProcedimiento);
+        if (categoriaProcedimiento.getIdCategoriaProcedimiento() != null) {
             obj = new JSONObject();
-            obj.put("idComoSupo", comoSupo.getIdComoSupo());
+            obj.put("idCategoriaProcedimiento", categoriaProcedimiento.getIdCategoriaProcedimiento());
             array.add(obj);
         }
         return array;
     }
 
-    public JSONArray editarComoSupo(HttpServletRequest r) {
+    public JSONArray editarCategoriaProcedimiento(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        ComoSupo comoSupo = ejbComoSupo.traer(Integer.parseInt(r.getParameter("idComoSupo")));
-        if (comoSupo != null) {
-            comoSupo.setComoSupo(r.getParameter("comoSupo"));
-            comoSupo.setUltimaEdicion(fechaActual);
-            comoSupo = ejbComoSupo.editar(comoSupo);
+        CategoriasProcedimientos categoriaProcedimiento = ejbCategoriaProcedimiento.traer(Integer.parseInt(r.getParameter("idCategoriaProcedimiento")));
+        if (categoriaProcedimiento != null) {
+            categoriaProcedimiento.setCategoriaProcedimiento(r.getParameter("categoriaProcedimiento"));
+            categoriaProcedimiento.setUltimaEdicion(fechaActual);
+            categoriaProcedimiento = ejbCategoriaProcedimiento.editar(categoriaProcedimiento);
             obj = new JSONObject();
-            obj.put("idComoSupo", comoSupo.getIdComoSupo());
+            obj.put("IdCategoriaProcedimiento", categoriaProcedimiento.getIdCategoriaProcedimiento());
             array.add(obj);
         }
         return array;
     }
 
-    public Integer eliminarComoSupo(HttpServletRequest r) {
-        Integer ok = ejbComoSupo.eliminar(Integer.parseInt(r.getParameter("idComoSupo")));
+    public Integer eliminarCategoriaProcedimiento(HttpServletRequest r) {
+        Integer ok = ejbCategoriaProcedimiento.eliminar(Integer.parseInt(r.getParameter("idCategoriaProcedimiento")));
         return ok;
     }
 
-    public JSONArray listarComoSupo(HttpServletRequest r) {
+    public JSONArray listarCategoriasProcedimientos(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        List<ComoSupo> comoSupos = ejbComoSupo.listar(sesion.clinica(r.getSession()));
-        if (comoSupos != null) {
-            for (ComoSupo comoSupo : comoSupos) {
-                if (comoSupo.getEstado().equals("activo")) {
+        List<CategoriasProcedimientos> categoriaProcedimientos = ejbCategoriaProcedimiento.listar(sesion.clinica(r.getSession()));
+        if (categoriaProcedimientos != null) {
+            for (CategoriasProcedimientos categoriaProcedimiento : categoriaProcedimientos) {
+                if (categoriaProcedimiento.getEstado().equals("activo")) {
                     obj = new JSONObject();
-                    obj.put("idComoSupo", comoSupo.getIdComoSupo());
-                    obj.put("comoSupo", comoSupo.getComoSupo());
+                    obj.put("idCategoriaProcedimiento", categoriaProcedimiento.getIdCategoriaProcedimiento());
+                    obj.put("categoriaProcedimiento", categoriaProcedimiento.getCategoriaProcedimiento());
                     array.add(obj);
                 }
             }
@@ -162,14 +162,14 @@ public class ComoSupoWeb extends HttpServlet {
         return array;
     }
 
-    public JSONArray traerComoSupo(HttpServletRequest r) {
+    public JSONArray traerCategoriaProcedimiento(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        ComoSupo comoSupo = ejbComoSupo.traer(Integer.parseInt(r.getParameter("idComoSupo")));
-        if (comoSupo != null) {
+        CategoriasProcedimientos categoriaProcedimiento = ejbCategoriaProcedimiento.traer(Integer.parseInt(r.getParameter("idCategoriaProcedimiento")));
+        if (categoriaProcedimiento != null) {
             obj = new JSONObject();
-            obj.put("idComoSupo", comoSupo.getIdComoSupo());
-            obj.put("comoSupo", comoSupo.getComoSupo());
+            obj.put("idCategoriaProcedimiento", categoriaProcedimiento.getIdCategoriaProcedimiento());
+            obj.put("categoriaProcedimiento", categoriaProcedimiento.getCategoriaProcedimiento());
             array.add(obj);
         }
         return array;

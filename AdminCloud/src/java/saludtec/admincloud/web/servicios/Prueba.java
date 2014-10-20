@@ -14,7 +14,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import saludtec.admincloud.web.utilidades.Utils;
+import saludtec.admincloud.web.utilidades.Calendario;
 
 /**
  *
@@ -40,13 +40,13 @@ public class Prueba extends HttpServlet {
             out.println(new Timestamp(d.getTime()));
             Date date = new Timestamp(d.getTime());
 //            out.println("<br>");
-//            out.println(Utils.fecha());
+//            out.println(Calendario.fecha());
 //            out.println("<br>");
-//            out.println(Utils.fecha());
+//            out.println(Calendario.fecha());
 //            out.println("<br>");
-//            out.println(Utils.fecha());
+//            out.println(Calendario.fecha());
 //            out.println("<br>");
-//            out.println(Utils.fecha());
+//            out.println(Calendario.fecha());
             out.println("<br>");
             out.println(request.getContextPath());
             out.println("<br>");

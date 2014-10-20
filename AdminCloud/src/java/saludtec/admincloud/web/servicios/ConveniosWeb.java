@@ -3,6 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+
 package saludtec.admincloud.web.servicios;
 
 import java.io.IOException;
@@ -17,17 +18,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import saludtec.admincloud.ejb.crud.ComoSupoEjb;
-import saludtec.admincloud.ejb.entidades.ComoSupo;
-import saludtec.admincloud.web.utilidades.Sesion;
+import saludtec.admincloud.ejb.crud.CompaniasSeguroEjb;
+import saludtec.admincloud.ejb.crud.ConveniosEjb;
+import saludtec.admincloud.ejb.entidades.Convenios;
 import saludtec.admincloud.web.utilidades.Calendario;
+import saludtec.admincloud.web.utilidades.Sesion;
 
 /**
  *
  * @author saintec
  */
-@WebServlet(name = "ComoSupoWeb", urlPatterns = {"/comoSupo/*"})
-public class ComoSupoWeb extends HttpServlet {
+@WebServlet(name = "ConveniosWeb", urlPatterns = {"/convenios/*"})
+public class ConveniosWeb extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -38,7 +40,7 @@ public class ComoSupoWeb extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @EJB
-    ComoSupoEjb ejbComoSupo;
+    ConveniosEjb ejbConvenio;
     Sesion sesion = new Sesion();
     Date fechaActual = Calendario.fechaCompleta();
 
@@ -56,21 +58,21 @@ public class ComoSupoWeb extends HttpServlet {
                 case "POST":
                     switch (servicio) {
                         case "/guardar":
-                            guardarComoSupo(request);
-                            listarComoSupo(request).writeJSONString(out);
+                            guardarConvenio(request);
+                            listarConvenios(request).writeJSONString(out);
                             break;
 
                         case "/editar":
-                            editarComoSupo(request);
-                            listarComoSupo(request).writeJSONString(out);
+                            editarConvenio(request);
+                            listarConvenios(request).writeJSONString(out);
                             break;
 
                         case "/eliminar":
-                            Integer rsp = eliminarComoSupo(request);
+                            Integer rsp = eliminarConvenio(request);
                             if (rsp == 200) {
-                                listarComoSupo(request).writeJSONString(out);
+                                listarConvenios(request).writeJSONString(out);
                             } else {
-                                response.sendError(400, "Documento no eliminado");
+                                response.sendError(400, "Convenio no eliminado");
                             }
                             break;
 
@@ -85,11 +87,11 @@ public class ComoSupoWeb extends HttpServlet {
                 case "GET":
                     switch (servicio) {
                         case "/listar":
-                            listarComoSupo(request).writeJSONString(out);
+                            listarConvenios(request).writeJSONString(out);
                             break;
 
                         case "/traer":
-                            traerComoSupo(request).writeJSONString(out);
+                            traerConvenio(request).writeJSONString(out);
                             break;
 
                         default:
@@ -106,55 +108,58 @@ public class ComoSupoWeb extends HttpServlet {
         }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="Metodos CRUD tipos de documentos">
-    public JSONArray guardarComoSupo(HttpServletRequest r) {
+    // <editor-fold defaultstate="collapsed" desc="Metodos CRUD tipos de convenios">
+    public JSONArray guardarConvenio(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        ComoSupo comoSupo = new ComoSupo();
-        comoSupo.setComoSupo(r.getParameter("comoSupo"));
-        comoSupo.setEstado("activo");
-        comoSupo.setFechaCreacion(fechaActual);
-        comoSupo.setUltimaEdicion(fechaActual);
-        comoSupo.setIdClinica(sesion.clinica(r.getSession()));
-        comoSupo = ejbComoSupo.guardar(comoSupo);
-        if (comoSupo.getIdComoSupo() != null) {
+        Convenios convenio = new Convenios();
+        convenio.setConvenio(r.getParameter("convenio"));
+        convenio.setCodigoConvenio(r.getParameter("codigoConvenio"));
+        convenio.setEstado("activo");
+        convenio.setFechaCreacion(fechaActual);
+        convenio.setUltimaEdicion(fechaActual);
+        convenio.setIdClinica(sesion.clinica(r.getSession()));
+        convenio = ejbConvenio.guardar(convenio);
+        if (convenio.getIdConvenio() != null) {
             obj = new JSONObject();
-            obj.put("idComoSupo", comoSupo.getIdComoSupo());
+            obj.put("idConvenio", convenio.getIdConvenio());
             array.add(obj);
         }
         return array;
     }
 
-    public JSONArray editarComoSupo(HttpServletRequest r) {
+    public JSONArray editarConvenio(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        ComoSupo comoSupo = ejbComoSupo.traer(Integer.parseInt(r.getParameter("idComoSupo")));
-        if (comoSupo != null) {
-            comoSupo.setComoSupo(r.getParameter("comoSupo"));
-            comoSupo.setUltimaEdicion(fechaActual);
-            comoSupo = ejbComoSupo.editar(comoSupo);
+        Convenios convenio = ejbConvenio.traer(Integer.parseInt(r.getParameter("idConvenio")));
+        if (convenio != null) {
+            convenio.setConvenio(r.getParameter("convenio"));
+            convenio.setCodigoConvenio(r.getParameter("codigoConvenio"));
+            convenio.setUltimaEdicion(fechaActual);
+            convenio = ejbConvenio.editar(convenio);
             obj = new JSONObject();
-            obj.put("idComoSupo", comoSupo.getIdComoSupo());
+            obj.put("idConvenio", convenio.getIdConvenio());
             array.add(obj);
         }
         return array;
     }
 
-    public Integer eliminarComoSupo(HttpServletRequest r) {
-        Integer ok = ejbComoSupo.eliminar(Integer.parseInt(r.getParameter("idComoSupo")));
+    public Integer eliminarConvenio(HttpServletRequest r) {
+        Integer ok = ejbConvenio.eliminar(Integer.parseInt(r.getParameter("idConvenio")));
         return ok;
     }
 
-    public JSONArray listarComoSupo(HttpServletRequest r) {
+    public JSONArray listarConvenios(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        List<ComoSupo> comoSupos = ejbComoSupo.listar(sesion.clinica(r.getSession()));
-        if (comoSupos != null) {
-            for (ComoSupo comoSupo : comoSupos) {
-                if (comoSupo.getEstado().equals("activo")) {
+        List<Convenios> tiposDocumentos = ejbConvenio.listar(sesion.clinica(r.getSession()));
+        if (tiposDocumentos != null) {
+            for (Convenios convenio : tiposDocumentos) {
+                if (convenio.getEstado().equals("activo")) {
                     obj = new JSONObject();
-                    obj.put("idComoSupo", comoSupo.getIdComoSupo());
-                    obj.put("comoSupo", comoSupo.getComoSupo());
+                    obj.put("idConvenio", convenio.getIdConvenio());
+                    obj.put("convenio", convenio.getConvenio());
+                    obj.put("codigoConvenio", convenio.getCodigoConvenio());
                     array.add(obj);
                 }
             }
@@ -162,14 +167,15 @@ public class ComoSupoWeb extends HttpServlet {
         return array;
     }
 
-    public JSONArray traerComoSupo(HttpServletRequest r) {
+    public JSONArray traerConvenio(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        ComoSupo comoSupo = ejbComoSupo.traer(Integer.parseInt(r.getParameter("idComoSupo")));
-        if (comoSupo != null) {
+        Convenios convenio = ejbConvenio.traer(Integer.parseInt(r.getParameter("idConvenio")));
+        if (convenio != null) {
             obj = new JSONObject();
-            obj.put("idComoSupo", comoSupo.getIdComoSupo());
-            obj.put("comoSupo", comoSupo.getComoSupo());
+            obj.put("idConvenio", convenio.getIdConvenio());
+            obj.put("convenio", convenio.getConvenio());
+            obj.put("codigoConvenio", convenio.getCodigoConvenio());
             array.add(obj);
         }
         return array;

@@ -8,7 +8,6 @@ package saludtec.admincloud.web.servicios;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
-import java.util.List;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -17,17 +16,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import saludtec.admincloud.ejb.crud.ComoSupoEjb;
-import saludtec.admincloud.ejb.entidades.ComoSupo;
-import saludtec.admincloud.web.utilidades.Sesion;
+import saludtec.admincloud.ejb.crud.ClavesArqueoEjb;
+import saludtec.admincloud.ejb.entidades.ClavesArqueoDeCaja;
 import saludtec.admincloud.web.utilidades.Calendario;
+import saludtec.admincloud.web.utilidades.Sesion;
 
 /**
  *
  * @author saintec
  */
-@WebServlet(name = "ComoSupoWeb", urlPatterns = {"/comoSupo/*"})
-public class ComoSupoWeb extends HttpServlet {
+@WebServlet(name = "ClavesArqueoWeb", urlPatterns = {"/claveArqueo/*"})
+public class ClavesArqueoWeb extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -38,7 +37,7 @@ public class ComoSupoWeb extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @EJB
-    ComoSupoEjb ejbComoSupo;
+    ClavesArqueoEjb ejbClaveArqueo;
     Sesion sesion = new Sesion();
     Date fechaActual = Calendario.fechaCompleta();
 
@@ -56,40 +55,15 @@ public class ComoSupoWeb extends HttpServlet {
                 case "POST":
                     switch (servicio) {
                         case "/guardar":
-                            guardarComoSupo(request);
-                            listarComoSupo(request).writeJSONString(out);
+                            guardarClaveArqueo(request).writeJSONString(out);
                             break;
 
                         case "/editar":
-                            editarComoSupo(request);
-                            listarComoSupo(request).writeJSONString(out);
-                            break;
-
-                        case "/eliminar":
-                            Integer rsp = eliminarComoSupo(request);
-                            if (rsp == 200) {
-                                listarComoSupo(request).writeJSONString(out);
-                            } else {
-                                response.sendError(400, "Documento no eliminado");
-                            }
-                            break;
-
-                        default:
-                            response.sendError(404, "Servicio " + servicio + " no existe");
-                            break;
-                    }
-                    break;
-                // </editor-fold>
-
-                // <editor-fold defaultstate="collapsed" desc="Servicios soportados por metodo GET">
-                case "GET":
-                    switch (servicio) {
-                        case "/listar":
-                            listarComoSupo(request).writeJSONString(out);
+                            editarClaveArqueo(request).writeJSONString(out);
                             break;
 
                         case "/traer":
-                            traerComoSupo(request).writeJSONString(out);
+                            traerClaveArqueo(request).writeJSONString(out);
                             break;
 
                         default:
@@ -107,69 +81,46 @@ public class ComoSupoWeb extends HttpServlet {
     }
 
     // <editor-fold defaultstate="collapsed" desc="Metodos CRUD tipos de documentos">
-    public JSONArray guardarComoSupo(HttpServletRequest r) {
+    public JSONArray guardarClaveArqueo(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        ComoSupo comoSupo = new ComoSupo();
-        comoSupo.setComoSupo(r.getParameter("comoSupo"));
-        comoSupo.setEstado("activo");
-        comoSupo.setFechaCreacion(fechaActual);
-        comoSupo.setUltimaEdicion(fechaActual);
-        comoSupo.setIdClinica(sesion.clinica(r.getSession()));
-        comoSupo = ejbComoSupo.guardar(comoSupo);
-        if (comoSupo.getIdComoSupo() != null) {
+        ClavesArqueoDeCaja claveArqueo = new ClavesArqueoDeCaja();
+        claveArqueo.setClaveArqueoDeCaja(r.getParameter("claveArqueo"));
+        claveArqueo.setFechaCreacion(fechaActual);
+        claveArqueo.setUltimaEdicion(fechaActual);
+        claveArqueo.setIdClinica(sesion.clinica(r.getSession()));
+        claveArqueo = ejbClaveArqueo.guardar(claveArqueo);
+        if (claveArqueo.getIdClaveArqueoDeCaja() != null) {
             obj = new JSONObject();
-            obj.put("idComoSupo", comoSupo.getIdComoSupo());
+            obj.put("claveArqueo", "Clave creada con exito");
             array.add(obj);
         }
         return array;
     }
 
-    public JSONArray editarComoSupo(HttpServletRequest r) {
+    public JSONArray editarClaveArqueo(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        ComoSupo comoSupo = ejbComoSupo.traer(Integer.parseInt(r.getParameter("idComoSupo")));
-        if (comoSupo != null) {
-            comoSupo.setComoSupo(r.getParameter("comoSupo"));
-            comoSupo.setUltimaEdicion(fechaActual);
-            comoSupo = ejbComoSupo.editar(comoSupo);
+        ClavesArqueoDeCaja claveArqueo = ejbClaveArqueo.traer((r.getParameter("claveArqueo")), sesion.clinica(r.getSession()));
+        if (claveArqueo != null) {
+            claveArqueo.setClaveArqueoDeCaja(r.getParameter("claveArqueo"));
+            claveArqueo.setUltimaEdicion(fechaActual);
+            claveArqueo = ejbClaveArqueo.editar(claveArqueo);
             obj = new JSONObject();
-            obj.put("idComoSupo", comoSupo.getIdComoSupo());
+            obj.put("claveArqueo", "Clave editada con exito");
             array.add(obj);
         }
         return array;
     }
 
-    public Integer eliminarComoSupo(HttpServletRequest r) {
-        Integer ok = ejbComoSupo.eliminar(Integer.parseInt(r.getParameter("idComoSupo")));
-        return ok;
-    }
 
-    public JSONArray listarComoSupo(HttpServletRequest r) {
+    public JSONArray traerClaveArqueo(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        List<ComoSupo> comoSupos = ejbComoSupo.listar(sesion.clinica(r.getSession()));
-        if (comoSupos != null) {
-            for (ComoSupo comoSupo : comoSupos) {
-                if (comoSupo.getEstado().equals("activo")) {
-                    obj = new JSONObject();
-                    obj.put("idComoSupo", comoSupo.getIdComoSupo());
-                    obj.put("comoSupo", comoSupo.getComoSupo());
-                    array.add(obj);
-                }
-            }
-        }
-        return array;
-    }
-
-    public JSONArray traerComoSupo(HttpServletRequest r) {
-        JSONArray array = new JSONArray();
-        JSONObject obj = null;
-        ComoSupo comoSupo = ejbComoSupo.traer(Integer.parseInt(r.getParameter("idComoSupo")));
-        if (comoSupo != null) {
+        ClavesArqueoDeCaja claveArqueo = ejbClaveArqueo.traer((r.getParameter("claveArqueo")), sesion.clinica(r.getSession()));
+        if (claveArqueo != null) {
             obj = new JSONObject();
-            obj.put("idComoSupo", comoSupo.getIdComoSupo());
-            obj.put("comoSupo", comoSupo.getComoSupo());
+            obj.put("claveArqueo", "Acceso ok");
             array.add(obj);
         }
         return array;
