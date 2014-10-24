@@ -6,7 +6,6 @@
 
 package saludtec.admincloud.web.utilidades;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import saludtec.admincloud.ejb.entidades.Clinicas;
 

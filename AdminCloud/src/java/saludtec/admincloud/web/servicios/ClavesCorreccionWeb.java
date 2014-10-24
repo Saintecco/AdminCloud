@@ -26,7 +26,7 @@ import saludtec.admincloud.web.utilidades.Sesion;
  *
  * @author saintec
  */
-@WebServlet(name = "ClavesCorreccionWeb", urlPatterns = {"/claveCorreccion/*"})
+@WebServlet(name = "ClavesCorreccionWeb", urlPatterns = {"/clavesCorreccion/*"})
 public class ClavesCorreccionWeb extends HttpServlet {
 
     /**
@@ -103,7 +103,7 @@ public class ClavesCorreccionWeb extends HttpServlet {
     public JSONArray editarClaveCorreccion(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        ClavesCorreccionFactura claveCorreccion = ejbClaveCorreccion.traer((r.getParameter("claveCorreccion")), sesion.clinica(r.getSession()));
+        ClavesCorreccionFactura claveCorreccion = ejbClaveCorreccion.traer(sesion.clinica(r.getSession()));
         if (claveCorreccion != null) {
             claveCorreccion.setClaveCorreccionFactura(r.getParameter("claveCorreccion"));
             claveCorreccion.setUltimaEdicion(fechaActual);

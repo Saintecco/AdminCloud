@@ -25,7 +25,7 @@ import saludtec.admincloud.web.utilidades.Sesion;
  *
  * @author saintec
  */
-@WebServlet(name = "ClavesArqueoWeb", urlPatterns = {"/claveArqueo/*"})
+@WebServlet(name = "ClavesArqueoWeb", urlPatterns = {"/clavesArqueo/*"})
 public class ClavesArqueoWeb extends HttpServlet {
 
     /**
@@ -101,7 +101,7 @@ public class ClavesArqueoWeb extends HttpServlet {
     public JSONArray editarClaveArqueo(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        ClavesArqueoDeCaja claveArqueo = ejbClaveArqueo.traer((r.getParameter("claveArqueo")), sesion.clinica(r.getSession()));
+        ClavesArqueoDeCaja claveArqueo = ejbClaveArqueo.traer(sesion.clinica(r.getSession()));
         if (claveArqueo != null) {
             claveArqueo.setClaveArqueoDeCaja(r.getParameter("claveArqueo"));
             claveArqueo.setUltimaEdicion(fechaActual);
