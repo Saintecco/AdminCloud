@@ -52,17 +52,14 @@ public class CompaniasSeguroWeb extends HttpServlet {
             String metodo = request.getMethod();
             switch (metodo) {
 
-                // <editor-fold defaultstate="collapsed" desc="Servicios soportados por metodo POST">
                 case "POST":
                     switch (servicio) {
                         case "/guardar":
-                            guardarCompaniaDeSeguro(request);
-                            listarCompaniasDeSeguros(request).writeJSONString(out);
+                            guardarCompaniaDeSeguro(request).writeJSONString(out);
                             break;
 
                         case "/editar":
-                            editarCompaniaDeSeguro(request);
-                            listarCompaniasDeSeguros(request).writeJSONString(out);
+                            editarCompaniaDeSeguro(request).writeJSONString(out);
                             break;
 
                         case "/eliminar":
@@ -79,9 +76,7 @@ public class CompaniasSeguroWeb extends HttpServlet {
                             break;
                     }
                     break;
-                // </editor-fold>
 
-                // <editor-fold defaultstate="collapsed" desc="Servicios soportados por metodo GET">
                 case "GET":
                     switch (servicio) {
                         case "/listar":
@@ -97,7 +92,6 @@ public class CompaniasSeguroWeb extends HttpServlet {
                             break;
                     }
                     break;
-                // </editor-fold>
 
                 default:
                     response.sendError(501, "Metodo " + metodo + " no soportado.");
@@ -117,10 +111,21 @@ public class CompaniasSeguroWeb extends HttpServlet {
         companiaSeguro.setFechaCreacion(fechaActual);
         companiaSeguro.setUltimaEdicion(fechaActual);
         companiaSeguro.setIdClinica(sesion.clinica(r.getSession()));
-        companiaSeguro = ejbCompaniaSeguro.guardar(companiaSeguro);
-        if (companiaSeguro.getIdCompaniaDeSeguro() != null) {
+        if (ejbCompaniaSeguro.traer(companiaSeguro.getCodigo(), sesion.clinica(r.getSession())) == null) {
+            companiaSeguro = ejbCompaniaSeguro.guardar(companiaSeguro);
+
+            if (companiaSeguro.getIdCompaniaDeSeguro() != null) {
+                obj = new JSONObject();
+                obj.put("idCompaniaSeguro", companiaSeguro.getIdCompaniaDeSeguro());
+                array.add(listarCompaniasDeSeguros(r));
+            } else {
+                obj = new JSONObject();
+                obj.put("error", "Error al guardar compania de seguro.");
+                array.add(obj);
+            }
+        } else {
             obj = new JSONObject();
-            obj.put("idCompaniaSeguro", companiaSeguro.getIdCompaniaDeSeguro());
+            obj.put("error", "Ya existe una compania de seguro con el codigo " + companiaSeguro.getCodigo());
             array.add(obj);
         }
         return array;
@@ -137,6 +142,10 @@ public class CompaniasSeguroWeb extends HttpServlet {
             companiaSeguro = ejbCompaniaSeguro.editar(companiaSeguro);
             obj = new JSONObject();
             obj.put("idCompaniaSeguro", companiaSeguro.getIdCompaniaDeSeguro());
+            array.add(listarCompaniasDeSeguros(r));
+        } else {
+            obj = new JSONObject();
+            obj.put("error", "Error al editar compania de seguro.");
             array.add(obj);
         }
         return array;

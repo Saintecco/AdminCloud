@@ -52,17 +52,14 @@ public class EstadosPacientesWeb extends HttpServlet {
             String metodo = request.getMethod();
             switch (metodo) {
 
-                // <editor-fold defaultstate="collapsed" desc="Servicios soportados por metodo POST">
                 case "POST":
                     switch (servicio) {
                         case "/guardar":
-                            guardarEstadoPaciente(request);
-                            listarEstadosPacientes(request).writeJSONString(out);
+                            guardarEstadoPaciente(request).writeJSONString(out);
                             break;
 
                         case "/editar":
-                            editarEstadoPaciente(request);
-                            listarEstadosPacientes(request).writeJSONString(out);
+                            editarEstadoPaciente(request).writeJSONString(out);
                             break;
 
                         case "/eliminar":
@@ -79,9 +76,7 @@ public class EstadosPacientesWeb extends HttpServlet {
                             break;
                     }
                     break;
-                // </editor-fold>
 
-                // <editor-fold defaultstate="collapsed" desc="Servicios soportados por metodo GET">
                 case "GET":
                     switch (servicio) {
                         case "/listar":
@@ -97,7 +92,6 @@ public class EstadosPacientesWeb extends HttpServlet {
                             break;
                     }
                     break;
-                // </editor-fold>
 
                 default:
                     response.sendError(501, "Metodo " + metodo + " no soportado.");
@@ -120,6 +114,10 @@ public class EstadosPacientesWeb extends HttpServlet {
         if (estadoPaciente.getIdEstadoPaciente() != null) {
             obj = new JSONObject();
             obj.put("idEstadoPaciente", estadoPaciente.getIdEstadoPaciente());
+            array.add(listarEstadosPacientes(r));
+        } else {
+            obj = new JSONObject();
+            obj.put("error", "Error al guardar estado paciente.");
             array.add(obj);
         }
         return array;
@@ -135,6 +133,10 @@ public class EstadosPacientesWeb extends HttpServlet {
             estadoPaciente = ejbEstadoPaciente.editar(estadoPaciente);
             obj = new JSONObject();
             obj.put("idEstadoPaciente", estadoPaciente.getIdEstadoPaciente());
+            array.add(listarEstadosPacientes(r));
+        } else {
+            obj = new JSONObject();
+            obj.put("error", "Error al editar estado paciente.");
             array.add(obj);
         }
         return array;

@@ -52,17 +52,14 @@ public class ComoSupoWeb extends HttpServlet {
             String metodo = request.getMethod();
             switch (metodo) {
 
-                // <editor-fold defaultstate="collapsed" desc="Servicios soportados por metodo POST">
                 case "POST":
                     switch (servicio) {
                         case "/guardar":
-                            guardarComoSupo(request);
-                            listarComoSupo(request).writeJSONString(out);
+                            guardarComoSupo(request).writeJSONString(out);
                             break;
 
                         case "/editar":
-                            editarComoSupo(request);
-                            listarComoSupo(request).writeJSONString(out);
+                            editarComoSupo(request).writeJSONString(out);
                             break;
 
                         case "/eliminar":
@@ -79,9 +76,7 @@ public class ComoSupoWeb extends HttpServlet {
                             break;
                     }
                     break;
-                // </editor-fold>
 
-                // <editor-fold defaultstate="collapsed" desc="Servicios soportados por metodo GET">
                 case "GET":
                     switch (servicio) {
                         case "/listar":
@@ -97,7 +92,6 @@ public class ComoSupoWeb extends HttpServlet {
                             break;
                     }
                     break;
-                // </editor-fold>
 
                 default:
                     response.sendError(501, "Metodo " + metodo + " no soportado.");
@@ -120,6 +114,10 @@ public class ComoSupoWeb extends HttpServlet {
         if (comoSupo.getIdComoSupo() != null) {
             obj = new JSONObject();
             obj.put("idComoSupo", comoSupo.getIdComoSupo());
+            array.add(listarComoSupo(r));
+        } else {
+            obj = new JSONObject();
+            obj.put("error", "Error al guardar referencia.");
             array.add(obj);
         }
         return array;
@@ -135,6 +133,10 @@ public class ComoSupoWeb extends HttpServlet {
             comoSupo = ejbComoSupo.editar(comoSupo);
             obj = new JSONObject();
             obj.put("idComoSupo", comoSupo.getIdComoSupo());
+            array.add(listarComoSupo(r));
+        } else {
+            obj = new JSONObject();
+            obj.put("error", "Error al editar la referencia.");
             array.add(obj);
         }
         return array;

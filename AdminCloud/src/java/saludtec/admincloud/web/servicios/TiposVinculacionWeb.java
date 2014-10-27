@@ -53,18 +53,15 @@ public class TiposVinculacionWeb extends HttpServlet {
             String servicio = request.getPathInfo();
             String metodo = request.getMethod();
             switch (metodo) {
-
-                // <editor-fold defaultstate="collapsed" desc="Servicios soportados por metodo POST">
+                //Servicios metodo POST
                 case "POST":
                     switch (servicio) {
                         case "/guardar":
-                            guardarTipoVinculacion(request);
-                            listarTiposVinculacion(request).writeJSONString(out);
+                            guardarTipoVinculacion(request).writeJSONString(out);
                             break;
 
                         case "/editar":
-                            editarTipoVinculacion(request);
-                            listarTiposVinculacion(request).writeJSONString(out);
+                            editarTipoVinculacion(request).writeJSONString(out);
                             break;
 
                         case "/eliminar":
@@ -81,9 +78,7 @@ public class TiposVinculacionWeb extends HttpServlet {
                             break;
                     }
                     break;
-                // </editor-fold>
-
-                // <editor-fold defaultstate="collapsed" desc="Servicios soportados por metodo GET">
+                //Servicios metodo GET
                 case "GET":
                     switch (servicio) {
                         case "/listar":
@@ -99,7 +94,6 @@ public class TiposVinculacionWeb extends HttpServlet {
                             break;
                     }
                     break;
-                // </editor-fold>
 
                 default:
                     response.sendError(501, "Metodo " + metodo + " no soportado.");
@@ -108,7 +102,7 @@ public class TiposVinculacionWeb extends HttpServlet {
         }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="Metodos CRUD tipos de documentos">
+    // <editor-fold defaultstate="collapsed" desc="Metodos CRUD tipos de vinculacion">
     public JSONArray guardarTipoVinculacion(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
@@ -122,6 +116,10 @@ public class TiposVinculacionWeb extends HttpServlet {
         if (tipoVinculacion.getIdTipoDeVinculacion() != null) {
             obj = new JSONObject();
             obj.put("idTipoDocumento", tipoVinculacion.getIdTipoDeVinculacion());
+            array.add(listarTiposVinculacion(r));
+        }else {
+            obj = new JSONObject();
+            obj.put("error", "Error al guardar el tipo de vinculacion.");
             array.add(obj);
         }
         return array;
@@ -137,6 +135,10 @@ public class TiposVinculacionWeb extends HttpServlet {
             tipoVinculacion = ejbTipoVinculacion.editar(tipoVinculacion);
             obj = new JSONObject();
             obj.put("idTipoVinculacion", tipoVinculacion.getIdTipoDeVinculacion());
+            array.add(obj);
+        }else {
+            obj = new JSONObject();
+            obj.put("error", "Error al editar el tipo de vinculacion.");
             array.add(obj);
         }
         return array;

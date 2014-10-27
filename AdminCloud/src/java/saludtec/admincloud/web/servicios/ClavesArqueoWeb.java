@@ -51,7 +51,6 @@ public class ClavesArqueoWeb extends HttpServlet {
             String metodo = request.getMethod();
             switch (metodo) {
 
-                // <editor-fold defaultstate="collapsed" desc="Servicios soportados por metodo POST">
                 case "POST":
                     switch (servicio) {
                         case "/guardar":
@@ -71,7 +70,6 @@ public class ClavesArqueoWeb extends HttpServlet {
                             break;
                     }
                     break;
-                // </editor-fold>
 
                 default:
                     response.sendError(501, "Metodo " + metodo + " no soportado.");
@@ -94,6 +92,10 @@ public class ClavesArqueoWeb extends HttpServlet {
             obj = new JSONObject();
             obj.put("claveArqueo", "Clave creada con exito");
             array.add(obj);
+        } else {
+            obj = new JSONObject();
+            obj.put("error", "Error al guardar la clave de arqueo.");
+            array.add(obj);
         }
         return array;
     }
@@ -109,10 +111,13 @@ public class ClavesArqueoWeb extends HttpServlet {
             obj = new JSONObject();
             obj.put("claveArqueo", "Clave editada con exito");
             array.add(obj);
+        } else {
+            obj = new JSONObject();
+            obj.put("error", "Error al editar la clave de arqueo.");
+            array.add(obj);
         }
         return array;
     }
-
 
     public JSONArray traerClaveArqueo(HttpServletRequest r) {
         JSONArray array = new JSONArray();

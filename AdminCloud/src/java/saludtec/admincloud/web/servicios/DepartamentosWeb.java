@@ -41,7 +41,7 @@ public class DepartamentosWeb extends HttpServlet {
     DepartamentosEjb ejbDepartamento;
     Sesion sesion = new Sesion();
     Date fechaActual = Calendario.fechaCompleta();
-
+    
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -51,20 +51,17 @@ public class DepartamentosWeb extends HttpServlet {
             String servicio = request.getPathInfo();
             String metodo = request.getMethod();
             switch (metodo) {
-
-                // <editor-fold defaultstate="collapsed" desc="Servicios soportados por metodo POST">
+                
                 case "POST":
                     switch (servicio) {
                         case "/guardar":
-                            guardarDepartamento(request);
-                            listarDepartamentos(request).writeJSONString(out);
+                            guardarDepartamento(request).writeJSONString(out);
                             break;
-
+                        
                         case "/editar":
-                            editarDepartamento(request);
-                            listarDepartamentos(request).writeJSONString(out);
+                            editarDepartamento(request).writeJSONString(out);
                             break;
-
+                        
                         case "/eliminar":
                             Integer rsp = eliminarDepartamento(request);
                             if (rsp == 200) {
@@ -73,32 +70,29 @@ public class DepartamentosWeb extends HttpServlet {
                                 response.sendError(400, "Departamento no eliminado");
                             }
                             break;
-
+                        
                         default:
                             response.sendError(404, "Servicio " + servicio + " no existe");
                             break;
                     }
                     break;
-                // </editor-fold>
-
-                // <editor-fold defaultstate="collapsed" desc="Servicios soportados por metodo GET">
+                
                 case "GET":
                     switch (servicio) {
                         case "/listar":
                             listarDepartamentos(request).writeJSONString(out);
                             break;
-
+                        
                         case "/traer":
                             traerTiposDocumentos(request).writeJSONString(out);
                             break;
-
+                        
                         default:
                             response.sendError(404, "Servicio " + servicio + " no existe");
                             break;
                     }
                     break;
-                // </editor-fold>
-
+                
                 default:
                     response.sendError(501, "Metodo " + metodo + " no soportado.");
                     break;
@@ -117,15 +111,25 @@ public class DepartamentosWeb extends HttpServlet {
         departamento.setFechaCreacion(fechaActual);
         departamento.setUltimaEdicion(fechaActual);
         departamento.setIdClinica(sesion.clinica(r.getSession()));
-        departamento = ejbDepartamento.guardar(departamento);
-        if (departamento.getIdDepartamento() != null) {
+        if (ejbDepartamento.traer(departamento.getCodigo(), sesion.clinica(r.getSession())) == null) {
+            departamento = ejbDepartamento.guardar(departamento);
+            if (departamento.getIdDepartamento() != null) {
+                obj = new JSONObject();
+                obj.put("idDepartamento", departamento.getIdDepartamento());
+                array.add(listarDepartamentos(r));
+            } else {
+                obj = new JSONObject();
+                obj.put("error", "Error al guardar departamento.");
+                array.add(obj);
+            }
+        } else {
             obj = new JSONObject();
-            obj.put("idDepartamento", departamento.getIdDepartamento());
+            obj.put("error", "Ya existe un departamento con el codigo " + departamento.getCodigo());
             array.add(obj);
         }
         return array;
     }
-
+    
     public JSONArray editarDepartamento(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
@@ -138,15 +142,19 @@ public class DepartamentosWeb extends HttpServlet {
             obj = new JSONObject();
             obj.put("idDepartamento", departamento.getIdDepartamento());
             array.add(obj);
+        } else {
+            obj = new JSONObject();
+            obj.put("error", "Error al editar departamento.");
+            array.add(obj);
         }
         return array;
     }
-
+    
     public Integer eliminarDepartamento(HttpServletRequest r) {
         Integer ok = ejbDepartamento.eliminar(Integer.parseInt(r.getParameter("idDepartamento")));
         return ok;
     }
-
+    
     public JSONArray listarDepartamentos(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
@@ -164,7 +172,7 @@ public class DepartamentosWeb extends HttpServlet {
         }
         return array;
     }
-
+    
     public JSONArray traerTiposDocumentos(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;

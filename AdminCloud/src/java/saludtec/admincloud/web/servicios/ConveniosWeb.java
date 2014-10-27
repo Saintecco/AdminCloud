@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package saludtec.admincloud.web.servicios;
 
 import java.io.IOException;
@@ -18,7 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import saludtec.admincloud.ejb.crud.CompaniasSeguroEjb;
 import saludtec.admincloud.ejb.crud.ConveniosEjb;
 import saludtec.admincloud.ejb.entidades.Convenios;
 import saludtec.admincloud.web.utilidades.Calendario;
@@ -54,17 +52,14 @@ public class ConveniosWeb extends HttpServlet {
             String metodo = request.getMethod();
             switch (metodo) {
 
-                // <editor-fold defaultstate="collapsed" desc="Servicios soportados por metodo POST">
                 case "POST":
                     switch (servicio) {
                         case "/guardar":
-                            guardarConvenio(request);
-                            listarConvenios(request).writeJSONString(out);
+                            guardarConvenio(request).writeJSONString(out);
                             break;
 
                         case "/editar":
-                            editarConvenio(request);
-                            listarConvenios(request).writeJSONString(out);
+                            editarConvenio(request).writeJSONString(out);
                             break;
 
                         case "/eliminar":
@@ -81,9 +76,7 @@ public class ConveniosWeb extends HttpServlet {
                             break;
                     }
                     break;
-                // </editor-fold>
 
-                // <editor-fold defaultstate="collapsed" desc="Servicios soportados por metodo GET">
                 case "GET":
                     switch (servicio) {
                         case "/listar":
@@ -99,7 +92,6 @@ public class ConveniosWeb extends HttpServlet {
                             break;
                     }
                     break;
-                // </editor-fold>
 
                 default:
                     response.sendError(501, "Metodo " + metodo + " no soportado.");
@@ -119,10 +111,20 @@ public class ConveniosWeb extends HttpServlet {
         convenio.setFechaCreacion(fechaActual);
         convenio.setUltimaEdicion(fechaActual);
         convenio.setIdClinica(sesion.clinica(r.getSession()));
-        convenio = ejbConvenio.guardar(convenio);
-        if (convenio.getIdConvenio() != null) {
+        if (ejbConvenio.traer(convenio.getCodigoConvenio(), sesion.clinica(r.getSession())) == null) {
+            convenio = ejbConvenio.guardar(convenio);
+            if (convenio.getIdConvenio() != null) {
+                obj = new JSONObject();
+                obj.put("idConvenio", convenio.getIdConvenio());
+                array.add(listarConvenios(r));
+            } else {
+                obj = new JSONObject();
+                obj.put("error", "Error al guardar convenio.");
+                array.add(obj);
+            }
+        } else {
             obj = new JSONObject();
-            obj.put("idConvenio", convenio.getIdConvenio());
+            obj.put("error", "Ya existe un convenio con el codigo " + convenio.getCodigoConvenio());
             array.add(obj);
         }
         return array;
@@ -139,6 +141,10 @@ public class ConveniosWeb extends HttpServlet {
             convenio = ejbConvenio.editar(convenio);
             obj = new JSONObject();
             obj.put("idConvenio", convenio.getIdConvenio());
+            array.add(listarConvenios(r));
+        } else {
+            obj = new JSONObject();
+            obj.put("error", "Error al editar convenio.");
             array.add(obj);
         }
         return array;

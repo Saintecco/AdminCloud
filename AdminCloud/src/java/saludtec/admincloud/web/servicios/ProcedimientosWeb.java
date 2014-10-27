@@ -55,17 +55,14 @@ public class ProcedimientosWeb extends HttpServlet {
             String metodo = request.getMethod();
             switch (metodo) {
 
-                // <editor-fold defaultstate="collapsed" desc="Servicios soportados por metodo POST">
                 case "POST":
                     switch (servicio) {
                         case "/guardar":
-                            guardarProcedimiento(request);
-                            listarProcedimientos(request).writeJSONString(out);
+                            guardarProcedimiento(request).writeJSONString(out);
                             break;
 
                         case "/editar":
-                            editarProcedimiento(request);
-                            listarProcedimientos(request).writeJSONString(out);
+                            editarProcedimiento(request).writeJSONString(out);
                             break;
 
                         case "/eliminar":
@@ -82,9 +79,7 @@ public class ProcedimientosWeb extends HttpServlet {
                             break;
                     }
                     break;
-                // </editor-fold>
 
-                // <editor-fold defaultstate="collapsed" desc="Servicios soportados por metodo GET">
                 case "GET":
                     switch (servicio) {
                         case "/listar":
@@ -100,7 +95,6 @@ public class ProcedimientosWeb extends HttpServlet {
                             break;
                     }
                     break;
-                // </editor-fold>
 
                 default:
                     response.sendError(501, "Metodo " + metodo + " no soportado.");
@@ -126,10 +120,20 @@ public class ProcedimientosWeb extends HttpServlet {
         procedimiento.setFechaCreacion(fechaActual);
         procedimiento.setUltimaEdicion(fechaActual);
         procedimiento.setIdClinica(sesion.clinica(r.getSession()));
-        procedimiento = ejbProcedimiento.guardar(procedimiento);
-        if (procedimiento.getIdProcedimiento() != null) {
+        if (ejbProcedimiento.traer(procedimiento.getCups(), sesion.clinica(r.getSession())) == null) {
+            procedimiento = ejbProcedimiento.guardar(procedimiento);
+            if (procedimiento.getIdProcedimiento() != null) {
+                obj = new JSONObject();
+                obj.put("idProcedimiento", procedimiento.getIdProcedimiento());
+                array.add(listarProcedimientos(r));
+            } else {
+                obj = new JSONObject();
+                obj.put("error", "Error al agregar procedimiento.");
+                array.add(obj);
+            }
+        } else {
             obj = new JSONObject();
-            obj.put("idProcedimiento", procedimiento.getIdProcedimiento());
+            obj.put("error", "Ya existe un procedimiento con el codigo cups " + procedimiento.getCups());
             array.add(obj);
         }
         return array;
@@ -154,6 +158,10 @@ public class ProcedimientosWeb extends HttpServlet {
             procedimiento = ejbProcedimiento.editar(procedimiento);
             obj = new JSONObject();
             obj.put("idProcedimiento", procedimiento.getIdProcedimiento());
+            array.add(listarProcedimientos(r));
+        } else {
+            obj = new JSONObject();
+            obj.put("error", "Error al editar procedimiento.");
             array.add(obj);
         }
         return array;

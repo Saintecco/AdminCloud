@@ -52,17 +52,14 @@ public class EstratosSocialesWeb extends HttpServlet {
             String metodo = request.getMethod();
             switch (metodo) {
 
-                // <editor-fold defaultstate="collapsed" desc="Servicios soportados por metodo POST">
                 case "POST":
                     switch (servicio) {
                         case "/guardar":
-                            guardarEstratoSocial(request);
-                            listarEstratosSociales(request).writeJSONString(out);
+                            guardarEstratoSocial(request).writeJSONString(out);
                             break;
 
                         case "/editar":
-                            editarEstratoSocial(request);
-                            listarEstratosSociales(request).writeJSONString(out);
+                            editarEstratoSocial(request).writeJSONString(out);
                             break;
 
                         case "/eliminar":
@@ -79,9 +76,7 @@ public class EstratosSocialesWeb extends HttpServlet {
                             break;
                     }
                     break;
-                // </editor-fold>
 
-                // <editor-fold defaultstate="collapsed" desc="Servicios soportados por metodo GET">
                 case "GET":
                     switch (servicio) {
                         case "/listar":
@@ -97,7 +92,6 @@ public class EstratosSocialesWeb extends HttpServlet {
                             break;
                     }
                     break;
-                // </editor-fold>
 
                 default:
                     response.sendError(501, "Metodo " + metodo + " no soportado.");
@@ -117,9 +111,13 @@ public class EstratosSocialesWeb extends HttpServlet {
         estratoSocial.setUltimaEdicion(fechaActual);
         estratoSocial.setIdClinica(sesion.clinica(r.getSession()));
         estratoSocial = ejbEstratoSocial.guardar(estratoSocial);
-        if (estratoSocial.getEstratoSocial()!= null) {
+        if (estratoSocial.getEstratoSocial() != null) {
             obj = new JSONObject();
             obj.put("idEstratoSocial", estratoSocial.getIdEstratoSocial());
+            array.add(listarEstratosSociales(r));
+        } else {
+            obj = new JSONObject();
+            obj.put("error", "Error al guardar estrato.");
             array.add(obj);
         }
         return array;
@@ -135,6 +133,10 @@ public class EstratosSocialesWeb extends HttpServlet {
             estratoSocial = ejbEstratoSocial.editar(estratoSocial);
             obj = new JSONObject();
             obj.put("idEstratoSocial", estratoSocial.getIdEstratoSocial());
+            array.add(listarEstratosSociales(r));
+        } else {
+            obj = new JSONObject();
+            obj.put("error", "Error al editar estrato.");
             array.add(obj);
         }
         return array;

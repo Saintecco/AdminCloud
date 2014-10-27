@@ -52,17 +52,14 @@ public class CategoriasProcedimientosWeb extends HttpServlet {
             String metodo = request.getMethod();
             switch (metodo) {
 
-                // <editor-fold defaultstate="collapsed" desc="Servicios soportados por metodo POST">
                 case "POST":
                     switch (servicio) {
                         case "/guardar":
-                            guardarCategoriaProcedimiento(request);
-                            listarCategoriasProcedimientos(request).writeJSONString(out);
+                            guardarCategoriaProcedimiento(request).writeJSONString(out);
                             break;
 
                         case "/editar":
-                            editarCategoriaProcedimiento(request);
-                            listarCategoriasProcedimientos(request).writeJSONString(out);
+                            editarCategoriaProcedimiento(request).writeJSONString(out);
                             break;
 
                         case "/eliminar":
@@ -79,9 +76,7 @@ public class CategoriasProcedimientosWeb extends HttpServlet {
                             break;
                     }
                     break;
-                // </editor-fold>
 
-                // <editor-fold defaultstate="collapsed" desc="Servicios soportados por metodo GET">
                 case "GET":
                     switch (servicio) {
                         case "/listar":
@@ -97,7 +92,6 @@ public class CategoriasProcedimientosWeb extends HttpServlet {
                             break;
                     }
                     break;
-                // </editor-fold>
 
                 default:
                     response.sendError(501, "Metodo " + metodo + " no soportado.");
@@ -120,6 +114,10 @@ public class CategoriasProcedimientosWeb extends HttpServlet {
         if (categoriaProcedimiento.getIdCategoriaProcedimiento() != null) {
             obj = new JSONObject();
             obj.put("idCategoriaProcedimiento", categoriaProcedimiento.getIdCategoriaProcedimiento());
+            array.add(listarCategoriasProcedimientos(r));
+        } else {
+            obj = new JSONObject();
+            obj.put("error", "Error al guardar categoria.");
             array.add(obj);
         }
         return array;
@@ -134,7 +132,11 @@ public class CategoriasProcedimientosWeb extends HttpServlet {
             categoriaProcedimiento.setUltimaEdicion(fechaActual);
             categoriaProcedimiento = ejbCategoriaProcedimiento.editar(categoriaProcedimiento);
             obj = new JSONObject();
-            obj.put("IdCategoriaProcedimiento", categoriaProcedimiento.getIdCategoriaProcedimiento());
+            obj.put("idCategoriaProcedimiento", categoriaProcedimiento.getIdCategoriaProcedimiento());
+            array.add(listarCategoriasProcedimientos(r));
+        } else {
+            obj = new JSONObject();
+            obj.put("error", "Error al editar la categoria.");
             array.add(obj);
         }
         return array;

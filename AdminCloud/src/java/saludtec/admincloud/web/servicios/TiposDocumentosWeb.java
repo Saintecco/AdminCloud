@@ -19,8 +19,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import saludtec.admincloud.ejb.crud.TiposDocumentosEjb;
 import saludtec.admincloud.ejb.entidades.TiposDeDocumentos;
-import saludtec.admincloud.web.utilidades.Sesion;
 import saludtec.admincloud.web.utilidades.Calendario;
+import saludtec.admincloud.web.utilidades.Sesion;
 
 /**
  *
@@ -43,18 +43,15 @@ public class TiposDocumentosWeb extends HttpServlet {
             String servicio = request.getPathInfo();
             String metodo = request.getMethod();
             switch (metodo) {
-                
-                // <editor-fold defaultstate="collapsed" desc="Servicios soportados por metodo POST">
+
                 case "POST":
                     switch (servicio) {
                         case "/guardar":
-                            guardarTipoDocumento(request);
-                            listarTiposDocumentos(request).writeJSONString(out);
+                            guardarTipoDocumento(request).writeJSONString(out);
                             break;
 
                         case "/editar":
-                            editarTipoDocumento(request);
-                            listarTiposDocumentos(request).writeJSONString(out);
+                            editarTipoDocumento(request).writeJSONString(out);
                             break;
 
                         case "/eliminar":
@@ -71,9 +68,7 @@ public class TiposDocumentosWeb extends HttpServlet {
                             break;
                     }
                     break;
-                // </editor-fold>
 
-                // <editor-fold defaultstate="collapsed" desc="Servicios soportados por metodo GET">
                 case "GET":
                     switch (servicio) {
                         case "/listar":
@@ -89,7 +84,6 @@ public class TiposDocumentosWeb extends HttpServlet {
                             break;
                     }
                     break;
-                // </editor-fold>
 
                 default:
                     response.sendError(501, "Metodo " + metodo + " no soportado.");
@@ -98,7 +92,7 @@ public class TiposDocumentosWeb extends HttpServlet {
         }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="Metodos CRUD tipos de documentos">
+    // <editor-fold defaultstate="collapsed" desc="Metodos CRUD departamentos>
     public JSONArray guardarTipoDocumento(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
@@ -112,6 +106,10 @@ public class TiposDocumentosWeb extends HttpServlet {
         if (tipoDocumento.getIdTipoDeDocumento() != null) {
             obj = new JSONObject();
             obj.put("idTipoDocumento", tipoDocumento.getIdTipoDeDocumento());
+            array.add(listarTiposDocumentos(r));
+        } else {
+            obj = new JSONObject();
+            obj.put("error", "Error al guardar tipo de documento.");
             array.add(obj);
         }
         return array;
@@ -127,6 +125,10 @@ public class TiposDocumentosWeb extends HttpServlet {
             tipoDocumento = ejbTipoDocumento.editar(tipoDocumento);
             obj = new JSONObject();
             obj.put("idTipoDocumento", tipoDocumento.getIdTipoDeDocumento());
+            array.add(listarTiposDocumentos(r));
+        } else {
+            obj = new JSONObject();
+            obj.put("error", "Error al guardar tipo de documento.");
             array.add(obj);
         }
         return array;

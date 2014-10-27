@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package saludtec.admincloud.web.servicios;
 
 import java.io.IOException;
@@ -37,7 +36,6 @@ public class ClavesCorreccionWeb extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    
     @EJB
     ClavesCorreccionEjb ejbClaveCorreccion;
     Sesion sesion = new Sesion();
@@ -53,7 +51,6 @@ public class ClavesCorreccionWeb extends HttpServlet {
             String metodo = request.getMethod();
             switch (metodo) {
 
-                // <editor-fold defaultstate="collapsed" desc="Servicios soportados por metodo POST">
                 case "POST":
                     switch (servicio) {
                         case "/guardar":
@@ -73,7 +70,6 @@ public class ClavesCorreccionWeb extends HttpServlet {
                             break;
                     }
                     break;
-                // </editor-fold>
 
                 default:
                     response.sendError(501, "Metodo " + metodo + " no soportado.");
@@ -96,6 +92,10 @@ public class ClavesCorreccionWeb extends HttpServlet {
             obj = new JSONObject();
             obj.put("claveCorreccion", "Clave creada con exito");
             array.add(obj);
+        } else {
+            obj = new JSONObject();
+            obj.put("error", "Error al guardar la clave de correccion.");
+            array.add(obj);
         }
         return array;
     }
@@ -111,10 +111,13 @@ public class ClavesCorreccionWeb extends HttpServlet {
             obj = new JSONObject();
             obj.put("claveCorreccion", "Clave editada con exito");
             array.add(obj);
+        } else {
+            obj = new JSONObject();
+            obj.put("error", "Error al editar la clave de correccion.");
+            array.add(obj);
         }
         return array;
     }
-
 
     public JSONArray traerClaveCorreccion(HttpServletRequest r) {
         JSONArray array = new JSONArray();
