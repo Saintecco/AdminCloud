@@ -103,7 +103,7 @@ public class ProcedimientosWeb extends HttpServlet {
         }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="Metodos CRUD tipos de documentos">
+    // <editor-fold defaultstate="collapsed" desc="Metodos CRUD procedimientos">
     public JSONArray guardarProcedimiento(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
@@ -116,6 +116,7 @@ public class ProcedimientosWeb extends HttpServlet {
         procedimiento.setFinalidadProcedimiento(Integer.parseInt(r.getParameter("finalidadProcedimiento")));
         procedimiento.setCups(r.getParameter("cups"));
         procedimiento.setValor(Double.parseDouble(r.getParameter("valor")));
+        procedimiento.setEditable(r.getParameter("editable"));
         procedimiento.setEstado("activo");
         procedimiento.setFechaCreacion(fechaActual);
         procedimiento.setUltimaEdicion(fechaActual);
@@ -125,7 +126,7 @@ public class ProcedimientosWeb extends HttpServlet {
             if (procedimiento.getIdProcedimiento() != null) {
                 obj = new JSONObject();
                 obj.put("idProcedimiento", procedimiento.getIdProcedimiento());
-                array.add(listarProcedimientos(r));
+                array = listarProcedimientos(r);
             } else {
                 obj = new JSONObject();
                 obj.put("error", "Error al agregar procedimiento.");
@@ -152,13 +153,14 @@ public class ProcedimientosWeb extends HttpServlet {
             procedimiento.setFinalidadProcedimiento(Integer.parseInt(r.getParameter("finalidadProcedimiento")));
             procedimiento.setCups(r.getParameter("cups"));
             procedimiento.setValor(Double.parseDouble(r.getParameter("valor")));
+            procedimiento.setEditable(r.getParameter("editable"));
             procedimiento.setFechaCreacion(fechaActual);
             procedimiento.setUltimaEdicion(fechaActual);
             procedimiento.setIdClinica(sesion.clinica(r.getSession()));
             procedimiento = ejbProcedimiento.editar(procedimiento);
             obj = new JSONObject();
             obj.put("idProcedimiento", procedimiento.getIdProcedimiento());
-            array.add(listarProcedimientos(r));
+            array = listarProcedimientos(r);
         } else {
             obj = new JSONObject();
             obj.put("error", "Error al editar procedimiento.");
@@ -189,6 +191,7 @@ public class ProcedimientosWeb extends HttpServlet {
                     obj.put("finalidadProcedimiento", procedimiento.getFinalidadProcedimiento());
                     obj.put("cups", procedimiento.getCups());
                     obj.put("valor", procedimiento.getValor());
+                    obj.put("editable", procedimiento.getEditable());
                     array.add(obj);
                 }
             }
@@ -211,6 +214,7 @@ public class ProcedimientosWeb extends HttpServlet {
             obj.put("finalidadProcedimiento", procedimiento.getFinalidadProcedimiento());
             obj.put("cups", procedimiento.getCups());
             obj.put("valor", procedimiento.getValor());
+            obj.put("editable", procedimiento.getEditable());
             array.add(obj);
         }
         return array;

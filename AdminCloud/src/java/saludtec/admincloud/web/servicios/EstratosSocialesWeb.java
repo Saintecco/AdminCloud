@@ -114,7 +114,7 @@ public class EstratosSocialesWeb extends HttpServlet {
         if (estratoSocial.getEstratoSocial() != null) {
             obj = new JSONObject();
             obj.put("idEstratoSocial", estratoSocial.getIdEstratoSocial());
-            array.add(listarEstratosSociales(r));
+            array=listarEstratosSociales(r);
         } else {
             obj = new JSONObject();
             obj.put("error", "Error al guardar estrato.");
@@ -133,7 +133,7 @@ public class EstratosSocialesWeb extends HttpServlet {
             estratoSocial = ejbEstratoSocial.editar(estratoSocial);
             obj = new JSONObject();
             obj.put("idEstratoSocial", estratoSocial.getIdEstratoSocial());
-            array.add(listarEstratosSociales(r));
+            array=listarEstratosSociales(r);
         } else {
             obj = new JSONObject();
             obj.put("error", "Error al editar estrato.");

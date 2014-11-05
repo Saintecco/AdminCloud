@@ -116,7 +116,7 @@ public class ConveniosWeb extends HttpServlet {
             if (convenio.getIdConvenio() != null) {
                 obj = new JSONObject();
                 obj.put("idConvenio", convenio.getIdConvenio());
-                array.add(listarConvenios(r));
+                array=listarConvenios(r);
             } else {
                 obj = new JSONObject();
                 obj.put("error", "Error al guardar convenio.");
@@ -141,7 +141,7 @@ public class ConveniosWeb extends HttpServlet {
             convenio = ejbConvenio.editar(convenio);
             obj = new JSONObject();
             obj.put("idConvenio", convenio.getIdConvenio());
-            array.add(listarConvenios(r));
+            array=listarConvenios(r);
         } else {
             obj = new JSONObject();
             obj.put("error", "Error al editar convenio.");

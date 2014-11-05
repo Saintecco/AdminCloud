@@ -114,7 +114,7 @@ public class CategoriasProcedimientosWeb extends HttpServlet {
         if (categoriaProcedimiento.getIdCategoriaProcedimiento() != null) {
             obj = new JSONObject();
             obj.put("idCategoriaProcedimiento", categoriaProcedimiento.getIdCategoriaProcedimiento());
-            array.add(listarCategoriasProcedimientos(r));
+            array = listarCategoriasProcedimientos(r);
         } else {
             obj = new JSONObject();
             obj.put("error", "Error al guardar categoria.");
@@ -133,7 +133,7 @@ public class CategoriasProcedimientosWeb extends HttpServlet {
             categoriaProcedimiento = ejbCategoriaProcedimiento.editar(categoriaProcedimiento);
             obj = new JSONObject();
             obj.put("idCategoriaProcedimiento", categoriaProcedimiento.getIdCategoriaProcedimiento());
-            array.add(listarCategoriasProcedimientos(r));
+            array=listarCategoriasProcedimientos(r);
         } else {
             obj = new JSONObject();
             obj.put("error", "Error al editar la categoria.");

@@ -117,7 +117,7 @@ public class CompaniasSeguroWeb extends HttpServlet {
             if (companiaSeguro.getIdCompaniaDeSeguro() != null) {
                 obj = new JSONObject();
                 obj.put("idCompaniaSeguro", companiaSeguro.getIdCompaniaDeSeguro());
-                array.add(listarCompaniasDeSeguros(r));
+                array=listarCompaniasDeSeguros(r);
             } else {
                 obj = new JSONObject();
                 obj.put("error", "Error al guardar compania de seguro.");
@@ -142,7 +142,7 @@ public class CompaniasSeguroWeb extends HttpServlet {
             companiaSeguro = ejbCompaniaSeguro.editar(companiaSeguro);
             obj = new JSONObject();
             obj.put("idCompaniaSeguro", companiaSeguro.getIdCompaniaDeSeguro());
-            array.add(listarCompaniasDeSeguros(r));
+            array=listarCompaniasDeSeguros(r);
         } else {
             obj = new JSONObject();
             obj.put("error", "Error al editar compania de seguro.");

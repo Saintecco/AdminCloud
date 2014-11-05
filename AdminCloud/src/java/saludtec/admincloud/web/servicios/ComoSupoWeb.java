@@ -114,7 +114,7 @@ public class ComoSupoWeb extends HttpServlet {
         if (comoSupo.getIdComoSupo() != null) {
             obj = new JSONObject();
             obj.put("idComoSupo", comoSupo.getIdComoSupo());
-            array.add(listarComoSupo(r));
+            array=listarComoSupo(r);
         } else {
             obj = new JSONObject();
             obj.put("error", "Error al guardar referencia.");
@@ -133,7 +133,7 @@ public class ComoSupoWeb extends HttpServlet {
             comoSupo = ejbComoSupo.editar(comoSupo);
             obj = new JSONObject();
             obj.put("idComoSupo", comoSupo.getIdComoSupo());
-            array.add(listarComoSupo(r));
+            array=listarComoSupo(r);
         } else {
             obj = new JSONObject();
             obj.put("error", "Error al editar la referencia.");

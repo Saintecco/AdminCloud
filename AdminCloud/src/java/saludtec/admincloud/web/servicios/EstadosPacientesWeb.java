@@ -114,7 +114,7 @@ public class EstadosPacientesWeb extends HttpServlet {
         if (estadoPaciente.getIdEstadoPaciente() != null) {
             obj = new JSONObject();
             obj.put("idEstadoPaciente", estadoPaciente.getIdEstadoPaciente());
-            array.add(listarEstadosPacientes(r));
+            array=listarEstadosPacientes(r);
         } else {
             obj = new JSONObject();
             obj.put("error", "Error al guardar estado paciente.");
@@ -133,7 +133,7 @@ public class EstadosPacientesWeb extends HttpServlet {
             estadoPaciente = ejbEstadoPaciente.editar(estadoPaciente);
             obj = new JSONObject();
             obj.put("idEstadoPaciente", estadoPaciente.getIdEstadoPaciente());
-            array.add(listarEstadosPacientes(r));
+            array=listarEstadosPacientes(r);
         } else {
             obj = new JSONObject();
             obj.put("error", "Error al editar estado paciente.");

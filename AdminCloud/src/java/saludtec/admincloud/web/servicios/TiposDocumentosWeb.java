@@ -106,7 +106,7 @@ public class TiposDocumentosWeb extends HttpServlet {
         if (tipoDocumento.getIdTipoDeDocumento() != null) {
             obj = new JSONObject();
             obj.put("idTipoDocumento", tipoDocumento.getIdTipoDeDocumento());
-            array.add(listarTiposDocumentos(r));
+            array=listarTiposDocumentos(r);
         } else {
             obj = new JSONObject();
             obj.put("error", "Error al guardar tipo de documento.");
@@ -125,7 +125,7 @@ public class TiposDocumentosWeb extends HttpServlet {
             tipoDocumento = ejbTipoDocumento.editar(tipoDocumento);
             obj = new JSONObject();
             obj.put("idTipoDocumento", tipoDocumento.getIdTipoDeDocumento());
-            array.add(listarTiposDocumentos(r));
+            array=listarTiposDocumentos(r);
         } else {
             obj = new JSONObject();
             obj.put("error", "Error al guardar tipo de documento.");

@@ -17,17 +17,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import saludtec.admincloud.ejb.crud.DepartamentosEjb;
-import saludtec.admincloud.ejb.entidades.Departamentos;
-import saludtec.admincloud.web.utilidades.Sesion;
+import saludtec.admincloud.ejb.crud.ClinicasEjb;
+import saludtec.admincloud.ejb.entidades.Clinicas;
 import saludtec.admincloud.web.utilidades.Calendario;
+import saludtec.admincloud.web.utilidades.Sesion;
 
 /**
  *
  * @author saintec
  */
-@WebServlet(name = "DepartamentosWeb", urlPatterns = {"/departamentos/*"})
-public class DepartamentosWeb extends HttpServlet {
+@WebServlet(name = "ClinicasWeb", urlPatterns = {"/clinicas/*"})
+public class ClinicasWeb extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -38,7 +38,7 @@ public class DepartamentosWeb extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @EJB
-    DepartamentosEjb ejbDepartamento;
+    ClinicasEjb ejbClinicas;
     Sesion sesion = new Sesion();
     Date fechaActual = Calendario.fechaCompleta();
 
@@ -55,20 +55,11 @@ public class DepartamentosWeb extends HttpServlet {
                 case "POST":
                     switch (servicio) {
                         case "/guardar":
-                            guardarDepartamento(request).writeJSONString(out);
+                            guardarClinica(request).writeJSONString(out);
                             break;
 
                         case "/editar":
-                            editarDepartamento(request).writeJSONString(out);
-                            break;
-
-                        case "/eliminar":
-                            Integer rsp = eliminarDepartamento(request);
-                            if (rsp == 200) {
-                                listarDepartamentos(request).writeJSONString(out);
-                            } else {
-                                response.sendError(400, "Departamento no eliminado");
-                            }
+                            editarClinica(request).writeJSONString(out);
                             break;
 
                         default:
@@ -80,11 +71,11 @@ public class DepartamentosWeb extends HttpServlet {
                 case "GET":
                     switch (servicio) {
                         case "/listar":
-                            listarDepartamentos(request).writeJSONString(out);
+                            listarClinica(request).writeJSONString(out);
                             break;
 
                         case "/traer":
-                            traerTiposDocumentos(request).writeJSONString(out);
+                            traerClinica(request).writeJSONString(out);
                             break;
 
                         default:
@@ -100,72 +91,86 @@ public class DepartamentosWeb extends HttpServlet {
         }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="Metodos CRUD tipos de departamentos">
-    public JSONArray guardarDepartamento(HttpServletRequest r) {
+    // <editor-fold defaultstate="collapsed" desc="Metodos CRUD tipos de documentos">
+    public JSONArray guardarClinica(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        Departamentos departamento = new Departamentos();
-        departamento.setDepartamento(r.getParameter("departamento"));
-        departamento.setCodigo(r.getParameter("codigoDepartamento"));
-        departamento.setEstado("activo");
-        departamento.setFechaCreacion(fechaActual);
-        departamento.setUltimaEdicion(fechaActual);
-        departamento.setIdClinica(sesion.clinica(r.getSession()));
-        if (ejbDepartamento.traer(departamento.getCodigo(), sesion.clinica(r.getSession())) == null) {
-            departamento = ejbDepartamento.guardar(departamento);
-            if (departamento.getIdDepartamento() != null) {
-                obj = new JSONObject();
-                obj.put("idDepartamento", departamento.getIdDepartamento());
-                array = listarDepartamentos(r);
-            } else {
-                obj = new JSONObject();
-                obj.put("error", "Error al guardar departamento.");
-                array.add(obj);
-            }
+        Clinicas clinica = new Clinicas();
+        clinica.setRazonSocial(r.getParameter("razonSocial"));
+        clinica.setNit(r.getParameter("nit"));
+        clinica.setTipoRegimen(r.getParameter("tipoRegimen"));
+        clinica.setDireccionPrincipal(r.getParameter("direccion"));
+        clinica.setTelefonoPrinicipal(r.getParameter("telefonoPrincipal"));
+        clinica.setFax(r.getParameter("fax"));
+        clinica.setEmailPrincipal(r.getParameter("email"));
+        clinica.setActividadEconomica(r.getParameter("actividadEconomica"));
+        clinica.setOtros(r.getParameter("otros"));
+//        clinica.setOtros(r.getParameter("otros"));
+//        clinica.setOtros(r.getParameter("otros"));
+//        clinica.setOtros(r.getParameter("otros"));
+        clinica.setEstado("activo");
+        clinica.setFechaCreacion(fechaActual);
+        clinica.setUltimaEdicion(fechaActual);
+        clinica = ejbClinicas.guardar(clinica);
+        if (clinica.getIdClinica() != null) {
+            obj = new JSONObject();
+            obj.put("idClinica", clinica.getIdClinica());
+            array = listarClinica(r);
         } else {
             obj = new JSONObject();
-            obj.put("error", "Ya existe un departamento con el codigo " + departamento.getCodigo());
+            obj.put("error", "Error al guardar la clinica.");
             array.add(obj);
         }
         return array;
     }
 
-    public JSONArray editarDepartamento(HttpServletRequest r) {
+    public JSONArray editarClinica(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        Departamentos departamento = ejbDepartamento.traer(Integer.parseInt(r.getParameter("idDepartamento")));
-        if (departamento != null) {
-            departamento.setDepartamento(r.getParameter("departamento"));
-            departamento.setCodigo(r.getParameter("codigoDepartamento"));
-            departamento.setUltimaEdicion(fechaActual);
-            departamento = ejbDepartamento.editar(departamento);
+        Clinicas clinica = ejbClinicas.traer(sesion.clinica(r.getSession()).getIdClinica());
+        if (clinica != null) {
+            clinica.setRazonSocial(r.getParameter("razonSocial"));
+            clinica.setNit(r.getParameter("nit"));
+            clinica.setTipoRegimen(r.getParameter("tipoRegimen"));
+            clinica.setDireccionPrincipal(r.getParameter("direccion"));
+            clinica.setTelefonoPrinicipal(r.getParameter("telefono"));
+            clinica.setFax(r.getParameter("fax"));
+            clinica.setEmailPrincipal(r.getParameter("email"));
+            clinica.setActividadEconomica(r.getParameter("actividadEconomica"));
+            clinica.setOtros(r.getParameter("otros"));
+            clinica.setUltimaEdicion(fechaActual);
+            clinica = ejbClinicas.editar(clinica);
             obj = new JSONObject();
-            obj.put("idDepartamento", departamento.getIdDepartamento());
-            array = listarDepartamentos(r);
+            obj.put("idClinica", clinica.getIdClinica());
+            array = traerClinica(r);
         } else {
             obj = new JSONObject();
-            obj.put("error", "Error al editar departamento.");
+            obj.put("error", "Error al editar la clinica.");
             array.add(obj);
         }
         return array;
     }
 
-    public Integer eliminarDepartamento(HttpServletRequest r) {
-        Integer ok = ejbDepartamento.eliminar(Integer.parseInt(r.getParameter("idDepartamento")));
-        return ok;
-    }
-
-    public JSONArray listarDepartamentos(HttpServletRequest r) {
+    public JSONArray listarClinica(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        List<Departamentos> tiposDocumentos = ejbDepartamento.listar(sesion.clinica(r.getSession()));
-        if (tiposDocumentos != null) {
-            for (Departamentos departamento : tiposDocumentos) {
-                if (departamento.getEstado().equals("activo")) {
+        List<Clinicas> clinicas = ejbClinicas.listar();
+        if (clinicas != null) {
+            for (Clinicas clinica : clinicas) {
+                if (clinica.getEstado().equals("activo")) {
                     obj = new JSONObject();
-                    obj.put("idDepartamento", departamento.getIdDepartamento());
-                    obj.put("departamento", departamento.getDepartamento());
-                    obj.put("codigoDepartamento", departamento.getCodigo());
+                    obj.put("idClinica", clinica.getIdClinica());
+                    obj.put("razonSocial", clinica.getRazonSocial());
+                    obj.put("nit", clinica.getNit());
+                    obj.put("tipoRegimen", clinica.getTipoRegimen());
+                    obj.put("direccion", clinica.getDireccionPrincipal());
+                    obj.put("telefono", clinica.getTelefonoPrinicipal());
+                    obj.put("fax", clinica.getFax());
+                    obj.put("email", clinica.getEmailPrincipal());
+                    obj.put("actividadEconomica", clinica.getActividadEconomica());
+                    obj.put("otros", clinica.getOtros());
+                    obj.put("limiteSedes", clinica.getLimiteSedes());
+                    obj.put("limiteUsuarios", clinica.getLimiteUsuarios());
                     array.add(obj);
                 }
             }
@@ -173,15 +178,23 @@ public class DepartamentosWeb extends HttpServlet {
         return array;
     }
 
-    public JSONArray traerTiposDocumentos(HttpServletRequest r) {
+    public JSONArray traerClinica(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        Departamentos departamento = ejbDepartamento.traer(Integer.parseInt(r.getParameter("idDepartamento")));
-        if (departamento != null) {
+        Clinicas clinica = ejbClinicas.traer(sesion.clinica(r.getSession()).getIdClinica());
+        if (clinica != null) {
             obj = new JSONObject();
-            obj.put("idDepartamento", departamento.getIdDepartamento());
-            obj.put("departamento", departamento.getDepartamento());
-            obj.put("codigoDepartamento", departamento.getCodigo());
+            obj.put("idClinica", clinica.getIdClinica());
+            obj.put("razonSocial", clinica.getRazonSocial());
+            obj.put("nit", clinica.getNit());
+            obj.put("tipoRegimen", clinica.getTipoRegimen());
+            obj.put("direccion", clinica.getDireccionPrincipal());
+            obj.put("telefono", clinica.getTelefonoPrinicipal());
+            obj.put("fax", clinica.getFax());
+            obj.put("email", clinica.getEmailPrincipal());
+            obj.put("actividadEconomica", clinica.getActividadEconomica());
+            obj.put("otros", clinica.getOtros());
+            obj.put("limiteSedes", clinica.getLimiteSedes());
             array.add(obj);
         }
         return array;

@@ -116,7 +116,7 @@ public class TiposVinculacionWeb extends HttpServlet {
         if (tipoVinculacion.getIdTipoDeVinculacion() != null) {
             obj = new JSONObject();
             obj.put("idTipoDocumento", tipoVinculacion.getIdTipoDeVinculacion());
-            array.add(listarTiposVinculacion(r));
+            array=listarTiposVinculacion(r);
         }else {
             obj = new JSONObject();
             obj.put("error", "Error al guardar el tipo de vinculacion.");
@@ -135,7 +135,7 @@ public class TiposVinculacionWeb extends HttpServlet {
             tipoVinculacion = ejbTipoVinculacion.editar(tipoVinculacion);
             obj = new JSONObject();
             obj.put("idTipoVinculacion", tipoVinculacion.getIdTipoDeVinculacion());
-            array.add(obj);
+            array=listarTiposVinculacion(r);
         }else {
             obj = new JSONObject();
             obj.put("error", "Error al editar el tipo de vinculacion.");
