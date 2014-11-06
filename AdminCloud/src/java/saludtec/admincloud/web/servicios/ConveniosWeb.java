@@ -17,8 +17,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import saludtec.admincloud.ejb.crud.CategoriasProcedimientosEjb;
 import saludtec.admincloud.ejb.crud.ConveniosEjb;
+import saludtec.admincloud.ejb.crud.ProcedimientosEjb;
+import saludtec.admincloud.ejb.crud.RelProcedimientosConveniosEjb;
+import saludtec.admincloud.ejb.entidades.CategoriasProcedimientos;
 import saludtec.admincloud.ejb.entidades.Convenios;
+import saludtec.admincloud.ejb.entidades.Procedimientos;
+import saludtec.admincloud.ejb.entidades.RelProcedimientosConvenios;
 import saludtec.admincloud.web.utilidades.Calendario;
 import saludtec.admincloud.web.utilidades.Sesion;
 
@@ -39,6 +45,14 @@ public class ConveniosWeb extends HttpServlet {
      */
     @EJB
     ConveniosEjb ejbConvenio;
+    @EJB
+    RelProcedimientosConveniosEjb ejbProcedimientoConvenio;
+    @EJB
+    ProcedimientosEjb ejbProcedimiento;
+    @EJB
+    RelProcedimientosConveniosEjb ejbRelProcedimientoConvenio;
+    @EJB
+    CategoriasProcedimientosEjb ejbCategoriaProcedimiento;
     Sesion sesion = new Sesion();
     Date fechaActual = Calendario.fechaCompleta();
 
@@ -56,6 +70,14 @@ public class ConveniosWeb extends HttpServlet {
                     switch (servicio) {
                         case "/guardar":
                             guardarConvenio(request).writeJSONString(out);
+                            break;
+
+                        case "/guardarProcedimiento":
+                            guardarProcedimiento(request).writeJSONString(out);
+                            break;
+
+                        case "/guardarProcedimientos":
+                            guardarProcedimientos(request).writeJSONString(out);
                             break;
 
                         case "/editar":
@@ -81,6 +103,10 @@ public class ConveniosWeb extends HttpServlet {
                     switch (servicio) {
                         case "/listar":
                             listarConvenios(request).writeJSONString(out);
+                            break;
+
+                        case "/listarProcedimientos":
+                            listarProcedimientos(request).writeJSONString(out);
                             break;
 
                         case "/traer":
@@ -116,7 +142,7 @@ public class ConveniosWeb extends HttpServlet {
             if (convenio.getIdConvenio() != null) {
                 obj = new JSONObject();
                 obj.put("idConvenio", convenio.getIdConvenio());
-                array=listarConvenios(r);
+                array = listarConvenios(r);
             } else {
                 obj = new JSONObject();
                 obj.put("error", "Error al guardar convenio.");
@@ -127,6 +153,125 @@ public class ConveniosWeb extends HttpServlet {
             obj.put("error", "Ya existe un convenio con el codigo " + convenio.getCodigoConvenio());
             array.add(obj);
         }
+        return array;
+    }
+
+    public JSONArray guardarProcedimiento(HttpServletRequest r) {
+        JSONArray array = new JSONArray();
+        JSONObject obj = null;
+        Convenios convenio = ejbConvenio.traer(Integer.parseInt(r.getParameter("idConvenio")));
+        Procedimientos procedimiento = ejbProcedimiento.traer(Integer.parseInt(r.getParameter("idProcedimiento")));
+        RelProcedimientosConvenios relProcedimeintoConvenio = new RelProcedimientosConvenios();
+        relProcedimeintoConvenio.setIdConvenio(convenio);
+        relProcedimeintoConvenio.setIdProcedimiento(procedimiento);
+        relProcedimeintoConvenio.setTipoDescuento(r.getParameter("tipoDescuento"));
+        relProcedimeintoConvenio.setValorDescuento(Double.parseDouble(r.getParameter("valorDescuento")));
+        relProcedimeintoConvenio.setTotal(Double.parseDouble(r.getParameter("total")));
+        relProcedimeintoConvenio.setEstado("activo");
+        relProcedimeintoConvenio.setFechaCreacion(fechaActual);
+        relProcedimeintoConvenio.setUltimaEdicion(fechaActual);
+        relProcedimeintoConvenio.setIdClinica(sesion.clinica(r.getSession()));
+        if (relProcedimeintoConvenio.getTipoDescuento().equals("procentual")) {
+            if (procedimiento.getValor() < ((relProcedimeintoConvenio.getValorDescuento() * 100) / procedimiento.getValor())) {
+                relProcedimeintoConvenio.setTotal(0.0);
+            }
+        } else {
+            if (procedimiento.getValor() < relProcedimeintoConvenio.getValorDescuento()) {
+                relProcedimeintoConvenio.setTotal(0.0);
+            }
+        }
+        RelProcedimientosConvenios rpc = ejbRelProcedimientoConvenio.traer(convenio, procedimiento);
+        if (rpc == null) {
+            relProcedimeintoConvenio = ejbRelProcedimientoConvenio.guardar(relProcedimeintoConvenio);
+            if (convenio.getIdConvenio() != null) {
+                obj = new JSONObject();
+                obj.put("idRelProcedimientoConvenio", relProcedimeintoConvenio.getIdRelProcedimientoConvenio());
+                array = listarProcedimientos(r);
+            } else {
+                obj = new JSONObject();
+                obj.put("error", "Error al guardar procedimiento en el convenio.");
+                array.add(obj);
+            }
+        } else if (rpc.getEstado().equals("activo")) {
+            obj = new JSONObject();
+            obj.put("error", "El procedimiento " + procedimiento.getProcedimiento() + " " + procedimiento.getCups() + " ya esta asociado a este convenio.");
+            array.add(obj);
+        } else if (rpc.getEstado().equals("inactivo")) {
+            relProcedimeintoConvenio.setFechaCreacion(rpc.getFechaCreacion());
+            relProcedimeintoConvenio = ejbRelProcedimientoConvenio.editar(relProcedimeintoConvenio);
+            if (convenio.getIdConvenio() != null) {
+                obj = new JSONObject();
+                obj.put("idRelProcedimientoConvenio", relProcedimeintoConvenio.getIdRelProcedimientoConvenio());
+                array = listarProcedimientos(r);
+            } else {
+                obj = new JSONObject();
+                obj.put("error", "Error al guardar procedimiento en el convenio.");
+                array.add(obj);
+            }
+        }
+        return array;
+    }
+
+    public JSONArray guardarProcedimientos(HttpServletRequest r) {
+        JSONArray array = new JSONArray();
+        JSONObject obj = null;
+        Convenios convenio = ejbConvenio.traer(Integer.parseInt(r.getParameter("idConvenio")));
+        Integer idCategoriaProcedimiento = Integer.parseInt(r.getParameter("idCategoriaProcedimiento"));
+        String tipoDescuento = r.getParameter("tipoDescuento");
+        Double valorDescuento = Double.parseDouble(r.getParameter("valorDescuento"));
+        Double total = Double.parseDouble(r.getParameter("total"));
+        List<Procedimientos> procedimientos;
+        if (idCategoriaProcedimiento == 0) {
+            procedimientos = ejbProcedimiento.listar(sesion.clinica(r.getSession()));
+        } else {
+            procedimientos = ejbProcedimiento.listar(ejbCategoriaProcedimiento.traer(idCategoriaProcedimiento));
+        }
+        for (Procedimientos procedimiento : procedimientos) {
+            RelProcedimientosConvenios relProcedimeintoConvenio = new RelProcedimientosConvenios();
+            relProcedimeintoConvenio.setIdConvenio(convenio);
+            relProcedimeintoConvenio.setIdProcedimiento(procedimiento);
+            relProcedimeintoConvenio.setTipoDescuento(tipoDescuento);
+            relProcedimeintoConvenio.setValorDescuento(valorDescuento);
+            relProcedimeintoConvenio.setTotal(total);
+            relProcedimeintoConvenio.setEstado("activo");
+            relProcedimeintoConvenio.setFechaCreacion(fechaActual);
+            relProcedimeintoConvenio.setUltimaEdicion(fechaActual);
+            relProcedimeintoConvenio.setIdClinica(sesion.clinica(r.getSession()));
+            if (relProcedimeintoConvenio.getTipoDescuento().equals("procentual")) {
+                if (procedimiento.getValor() < ((relProcedimeintoConvenio.getValorDescuento() * 100) / procedimiento.getValor())) {
+                    relProcedimeintoConvenio.setTotal(0.0);
+                }
+            } else {
+                if (procedimiento.getValor() < relProcedimeintoConvenio.getValorDescuento()) {
+                    relProcedimeintoConvenio.setTotal(0.0);
+                }
+            }
+            RelProcedimientosConvenios rpc = ejbRelProcedimientoConvenio.traer(convenio, procedimiento);
+            if (rpc == null) {
+                relProcedimeintoConvenio = ejbRelProcedimientoConvenio.guardar(relProcedimeintoConvenio);
+                if (convenio.getIdConvenio() != null) {
+                    obj = new JSONObject();
+                    obj.put("idRelProcedimientoConvenio", relProcedimeintoConvenio.getIdRelProcedimientoConvenio());
+                } else {
+                    obj = new JSONObject();
+                    obj.put("error", "Error al guardar procedimiento en el convenio.");
+                }
+            } else if (rpc.getEstado().equals("activo")) {
+                obj = new JSONObject();
+                obj.put("error", "El procedimiento " + procedimiento.getProcedimiento() + " " + procedimiento.getCups() + " ya esta asociado a este convenio.");
+            } else if (rpc.getEstado().equals("inactivo")) {
+                relProcedimeintoConvenio.setFechaCreacion(rpc.getFechaCreacion());
+                relProcedimeintoConvenio = ejbRelProcedimientoConvenio.editar(relProcedimeintoConvenio);
+                if (convenio.getIdConvenio() != null) {
+                    obj = new JSONObject();
+                    obj.put("idRelProcedimientoConvenio", relProcedimeintoConvenio.getIdRelProcedimientoConvenio());
+                } else {
+                    obj = new JSONObject();
+                    obj.put("error", "Error al guardar procedimiento en el convenio.");
+                }
+            }
+        }
+        array = listarProcedimientos(r);
         return array;
     }
 
@@ -141,7 +286,7 @@ public class ConveniosWeb extends HttpServlet {
             convenio = ejbConvenio.editar(convenio);
             obj = new JSONObject();
             obj.put("idConvenio", convenio.getIdConvenio());
-            array=listarConvenios(r);
+            array = listarConvenios(r);
         } else {
             obj = new JSONObject();
             obj.put("error", "Error al editar convenio.");
@@ -166,6 +311,29 @@ public class ConveniosWeb extends HttpServlet {
                     obj.put("idConvenio", convenio.getIdConvenio());
                     obj.put("convenio", convenio.getConvenio());
                     obj.put("codigoConvenio", convenio.getCodigoConvenio());
+                    array.add(obj);
+                }
+            }
+        }
+        return array;
+    }
+
+    public JSONArray listarProcedimientos(HttpServletRequest r) {
+        JSONArray array = new JSONArray();
+        JSONObject obj = null;
+        Convenios convenio = ejbConvenio.traer(Integer.parseInt(r.getParameter("idConvenio")));
+        List<RelProcedimientosConvenios> relProcedimientosConvenios = ejbProcedimientoConvenio.listar(convenio);
+        if (relProcedimientosConvenios != null) {
+            for (RelProcedimientosConvenios procedimiento : relProcedimientosConvenios) {
+                if (procedimiento.getEstado().equals("activo")) {
+                    obj = new JSONObject();
+                    obj.put("idRelProcedimientoConvenio", procedimiento.getIdRelProcedimientoConvenio());
+                    obj.put("idProcedimiento", procedimiento.getIdProcedimiento().getIdProcedimiento());
+                    obj.put("procedimiento", procedimiento.getIdProcedimiento().getProcedimiento());
+                    obj.put("categoriaProcedimiento", procedimiento.getIdProcedimiento().getIdCategoriaProcedimiento().getCategoriaProcedimiento());
+                    obj.put("tipoDescuento", procedimiento.getTipoDescuento());
+                    obj.put("valorDescuento", procedimiento.getValorDescuento());
+                    obj.put("total", procedimiento.getTotal());
                     array.add(obj);
                 }
             }

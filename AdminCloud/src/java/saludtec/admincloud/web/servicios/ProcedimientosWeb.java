@@ -18,8 +18,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import saludtec.admincloud.ejb.crud.CategoriasProcedimientosEjb;
+import saludtec.admincloud.ejb.crud.ConveniosEjb;
 import saludtec.admincloud.ejb.crud.ProcedimientosEjb;
+import saludtec.admincloud.ejb.crud.RelProcedimientosConveniosEjb;
+import saludtec.admincloud.ejb.entidades.Convenios;
 import saludtec.admincloud.ejb.entidades.Procedimientos;
+import saludtec.admincloud.ejb.entidades.RelProcedimientosConvenios;
 import saludtec.admincloud.web.utilidades.Calendario;
 import saludtec.admincloud.web.utilidades.Sesion;
 
@@ -42,6 +46,10 @@ public class ProcedimientosWeb extends HttpServlet {
     ProcedimientosEjb ejbProcedimiento;
     @EJB
     CategoriasProcedimientosEjb ejbCaegoriaProcedimiento;
+    @EJB
+    ConveniosEjb ejbConvenio;
+    @EJB
+    RelProcedimientosConveniosEjb ejbProcedimientoConvenio;
     Sesion sesion = new Sesion();
     Date fechaActual = Calendario.fechaCompleta();
 

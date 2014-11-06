@@ -17,7 +17,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import saludtec.admincloud.ejb.crud.ProfesionalesEjb;
 import saludtec.admincloud.ejb.crud.TiposDocumentosEjb;
+import saludtec.admincloud.ejb.entidades.Profesionales;
 import saludtec.admincloud.ejb.entidades.TiposDeDocumentos;
 import saludtec.admincloud.web.utilidades.Calendario;
 import saludtec.admincloud.web.utilidades.Sesion;
@@ -26,9 +28,19 @@ import saludtec.admincloud.web.utilidades.Sesion;
  *
  * @author saintec
  */
-@WebServlet(name = "TiposDocumentosWeb", urlPatterns = {"/tiposDocumentos/*"})
-public class TiposDocumentosWeb extends HttpServlet {
+@WebServlet(name = "Profesionalesweb", urlPatterns = {"/profesionales/*"})
+public class Profesionalesweb extends HttpServlet {
 
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @EJB
+    ProfesionalesEjb ejbProfesional;
     @EJB
     TiposDocumentosEjb ejbTipoDocumento;
     Sesion sesion = new Sesion();
@@ -47,17 +59,17 @@ public class TiposDocumentosWeb extends HttpServlet {
                 case "POST":
                     switch (servicio) {
                         case "/guardar":
-                            guardarTipoDocumento(request).writeJSONString(out);
+                            guardarProfesional(request).writeJSONString(out);
                             break;
 
                         case "/editar":
-                            editarTipoDocumento(request).writeJSONString(out);
+                            editarProfesional(request).writeJSONString(out);
                             break;
 
                         case "/eliminar":
-                            Integer rsp = eliminarTipoDocumento(request);
+                            Integer rsp = eliminarProfesional(request);
                             if (rsp == 200) {
-                                listarTiposDocumentos(request).writeJSONString(out);
+                                listarProfesionales(request).writeJSONString(out);
                             } else {
                                 response.sendError(400, "Documento no eliminado");
                             }
@@ -72,11 +84,11 @@ public class TiposDocumentosWeb extends HttpServlet {
                 case "GET":
                     switch (servicio) {
                         case "/listar":
-                            listarTiposDocumentos(request).writeJSONString(out);
+                            listarProfesionales(request).writeJSONString(out);
                             break;
 
                         case "/traer":
-                            traerTipoDocumento(request).writeJSONString(out);
+                            traerProfesional(request).writeJSONString(out);
                             break;
 
                         default:
@@ -93,20 +105,26 @@ public class TiposDocumentosWeb extends HttpServlet {
     }
 
     // <editor-fold defaultstate="collapsed" desc="Metodos CRUD departamentos">
-    public JSONArray guardarTipoDocumento(HttpServletRequest r) {
+    public JSONArray guardarProfesional(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        TiposDeDocumentos tipoDocumento = new TiposDeDocumentos();
-        tipoDocumento.setTipoDeDocumento(r.getParameter("tipoDocumento"));
-        tipoDocumento.setEstado("activo");
-        tipoDocumento.setFechaCreacion(fechaActual);
-        tipoDocumento.setUltimaEdicion(fechaActual);
-        tipoDocumento.setIdClinica(sesion.clinica(r.getSession()));
-        tipoDocumento = ejbTipoDocumento.guardar(tipoDocumento);
-        if (tipoDocumento.getIdTipoDeDocumento() != null) {
+        Profesionales profesional = new Profesionales();
+        profesional.setNombre(r.getParameter("nombre"));
+        profesional.setApellido(r.getParameter("apellido"));
+        profesional.setIdTipoDeDocumento(ejbTipoDocumento.traer(Integer.parseInt(r.getParameter("idTipoDocumento"))));
+        profesional.setNumeroDeDocumento(r.getParameter("numeroDocumento"));
+        profesional.setTelefono(r.getParameter("telefono"));
+        profesional.setEmail(r.getParameter("email"));
+        profesional.setUsuario(r.getParameter("usuario"));
+        profesional.setEstado(r.getParameter("estado"));
+        profesional.setFechaCreacion(fechaActual);
+        profesional.setUltimaEdicion(fechaActual);
+        profesional.setIdClinica(sesion.clinica(r.getSession()));
+        profesional = ejbProfesional.guardar(profesional);
+        if (profesional.getIdTipoDeDocumento() != null) {
             obj = new JSONObject();
-            obj.put("idTipoDocumento", tipoDocumento.getIdTipoDeDocumento());
-            array=listarTiposDocumentos(r);
+            obj.put("idTipoDocumento", profesional.getIdTipoDeDocumento());
+            array = listarProfesionales(r);
         } else {
             obj = new JSONObject();
             obj.put("error", "Error al guardar tipo de documento.");
@@ -115,17 +133,24 @@ public class TiposDocumentosWeb extends HttpServlet {
         return array;
     }
 
-    public JSONArray editarTipoDocumento(HttpServletRequest r) {
+    public JSONArray editarProfesional(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        TiposDeDocumentos tipoDocumento = ejbTipoDocumento.traer(Integer.parseInt(r.getParameter("idTipoDocumento")));
-        if (tipoDocumento != null) {
-            tipoDocumento.setTipoDeDocumento(r.getParameter("tipoDocumento"));
-            tipoDocumento.setUltimaEdicion(fechaActual);
-            tipoDocumento = ejbTipoDocumento.editar(tipoDocumento);
+        Profesionales profesional = ejbProfesional.traer(Integer.parseInt(r.getParameter("idProfesional")));
+        if (profesional != null) {
+            profesional.setNombre(r.getParameter("nombre"));
+            profesional.setApellido(r.getParameter("apellido"));
+            profesional.setIdTipoDeDocumento(ejbTipoDocumento.traer(Integer.parseInt(r.getParameter("idTipoDocumento"))));
+            profesional.setNumeroDeDocumento(r.getParameter("numeroDocumento"));
+            profesional.setTelefono(r.getParameter("telefono"));
+            profesional.setEmail(r.getParameter("email"));
+            profesional.setUsuario(r.getParameter("usuario"));
+            profesional.setEstado(r.getParameter("estado"));
+            profesional.setUltimaEdicion(fechaActual);
+            profesional = ejbProfesional.editar(profesional);
             obj = new JSONObject();
-            obj.put("idTipoDocumento", tipoDocumento.getIdTipoDeDocumento());
-            array=listarTiposDocumentos(r);
+            obj.put("idTipoDocumento", profesional.getIdTipoDeDocumento());
+            array = listarProfesionales(r);
         } else {
             obj = new JSONObject();
             obj.put("error", "Error al guardar tipo de documento.");
@@ -134,21 +159,28 @@ public class TiposDocumentosWeb extends HttpServlet {
         return array;
     }
 
-    public Integer eliminarTipoDocumento(HttpServletRequest r) {
+    public Integer eliminarProfesional(HttpServletRequest r) {
         Integer ok = ejbTipoDocumento.eliminar(Integer.parseInt(r.getParameter("idTipoDocumento")));
         return ok;
     }
 
-    public JSONArray listarTiposDocumentos(HttpServletRequest r) {
+    public JSONArray listarProfesionales(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        List<TiposDeDocumentos> tiposDocumentos = ejbTipoDocumento.listar(sesion.clinica(r.getSession()));
-        if (tiposDocumentos != null) {
-            for (TiposDeDocumentos tipoDocumento : tiposDocumentos) {
-                if (tipoDocumento.getEstado().equals("activo")) {
+        List<Profesionales> profesionales = ejbProfesional.listar(sesion.clinica(r.getSession()));
+        if (profesionales != null) {
+            for (Profesionales profesional : profesionales) {
+                if (profesional.getEstado().equals("activo")) {
                     obj = new JSONObject();
-                    obj.put("idTipoDocumento", tipoDocumento.getIdTipoDeDocumento());
-                    obj.put("tipoDocumento", tipoDocumento.getTipoDeDocumento());
+                    obj.put("idProfesional", profesional.getIdProfesional());
+                    obj.put("nombre", profesional.getNombre());
+                    obj.put("apellido", profesional.getApellido());
+                    obj.put("idTipoDocumento", profesional.getIdTipoDeDocumento().getIdTipoDeDocumento());
+                    obj.put("numeroDocumento", profesional.getNumeroDeDocumento());
+                    obj.put("telefono", profesional.getTelefono());
+                    obj.put("email", profesional.getEmail());
+                    obj.put("estado", profesional.getEstado());
+                    obj.put("usuario", profesional.getUsuario());
                     array.add(obj);
                 }
             }
@@ -156,14 +188,21 @@ public class TiposDocumentosWeb extends HttpServlet {
         return array;
     }
 
-    public JSONArray traerTipoDocumento(HttpServletRequest r) {
+    public JSONArray traerProfesional(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
-        TiposDeDocumentos tipoDocumento = ejbTipoDocumento.traer(Integer.parseInt(r.getParameter("idTipoDocumento")));
-        if (tipoDocumento != null) {
+        Profesionales profesional = ejbProfesional.traer(Integer.parseInt(r.getParameter("idProfesional")));
+        if (profesional != null) {
             obj = new JSONObject();
-            obj.put("idTipoDocumento", tipoDocumento.getIdTipoDeDocumento());
-            obj.put("tipoDocumento", tipoDocumento.getTipoDeDocumento());
+            obj.put("idProfesional", profesional.getIdProfesional());
+            obj.put("nombre", profesional.getNombre());
+            obj.put("apellido", profesional.getApellido());
+            obj.put("idTipoDocumento", profesional.getIdTipoDeDocumento().getIdTipoDeDocumento());
+            obj.put("numeroDocumento", profesional.getNumeroDeDocumento());
+            obj.put("telefono", profesional.getTelefono());
+            obj.put("email", profesional.getEmail());
+            obj.put("estado", profesional.getEstado());
+            obj.put("usuario", profesional.getUsuario());
             array.add(obj);
         }
         return array;
