@@ -72,7 +72,7 @@ public class ClavesCorreccionWeb extends HttpServlet {
                     break;
 
                 default:
-                    response.sendError(501, "Metodo " + metodo + " no soportado.");
+                    response.sendError(501, "Metodo " + metodo + " no soportado");
                     break;
             }
         }
@@ -94,7 +94,7 @@ public class ClavesCorreccionWeb extends HttpServlet {
             array.add(obj);
         } else {
             obj = new JSONObject();
-            obj.put("error", "Error al guardar la clave de correccion.");
+            obj.put("error", "Error al guardar la clave de correccion");
             array.add(obj);
         }
         return array;
@@ -113,7 +113,7 @@ public class ClavesCorreccionWeb extends HttpServlet {
             array.add(obj);
         } else {
             obj = new JSONObject();
-            obj.put("error", "Error al editar la clave de correccion.");
+            obj.put("error", "Error al editar la clave de correccion");
             array.add(obj);
         }
         return array;

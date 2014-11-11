@@ -63,12 +63,7 @@ public class DepartamentosWeb extends HttpServlet {
                             break;
 
                         case "/eliminar":
-                            Integer rsp = eliminarDepartamento(request);
-                            if (rsp == 200) {
-                                listarDepartamentos(request).writeJSONString(out);
-                            } else {
-                                response.sendError(400, "Departamento no eliminado");
-                            }
+                            eliminarDepartamento(request).writeJSONString(out);
                             break;
 
                         default:
@@ -94,7 +89,7 @@ public class DepartamentosWeb extends HttpServlet {
                     break;
 
                 default:
-                    response.sendError(501, "Metodo " + metodo + " no soportado.");
+                    response.sendError(501, "Metodo " + metodo + " no soportado");
                     break;
             }
         }
@@ -119,7 +114,7 @@ public class DepartamentosWeb extends HttpServlet {
                 array = listarDepartamentos(r);
             } else {
                 obj = new JSONObject();
-                obj.put("error", "Error al guardar departamento.");
+                obj.put("error", "Error al guardar departamento");
                 array.add(obj);
             }
         } else {
@@ -144,15 +139,30 @@ public class DepartamentosWeb extends HttpServlet {
             array = listarDepartamentos(r);
         } else {
             obj = new JSONObject();
-            obj.put("error", "Error al editar departamento.");
+            obj.put("error", "Error al editar departamento");
             array.add(obj);
         }
         return array;
     }
 
-    public Integer eliminarDepartamento(HttpServletRequest r) {
-        Integer ok = ejbDepartamento.eliminar(Integer.parseInt(r.getParameter("idDepartamento")));
-        return ok;
+    public JSONArray eliminarDepartamento(HttpServletRequest r) {
+        JSONArray array = new JSONArray();
+        JSONObject obj = null;
+        Departamentos departamento = ejbDepartamento.traer(Integer.parseInt(r.getParameter("idDepartamento")));
+        if (departamento != null) {
+            if (departamento.getPacientesList().size() > 0) {
+                obj = new JSONObject();
+                obj.put("error", "No se puede eliminar departamento '" + departamento.getDepartamento()+ "' porque esta asociado a uno varios pacientes");
+                array.add(obj);
+            } else {
+                departamento.setEstado("inactivo");
+                departamento = ejbDepartamento.editar(departamento);
+                obj = new JSONObject();
+                obj.put("idDepartamento", departamento.getIdDepartamento());
+                array = listarDepartamentos(r);
+            }
+        }
+        return array;
     }
 
     public JSONArray listarDepartamentos(HttpServletRequest r) {

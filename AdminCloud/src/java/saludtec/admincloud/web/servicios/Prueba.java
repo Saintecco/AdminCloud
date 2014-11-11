@@ -5,6 +5,7 @@
  */
 package saludtec.admincloud.web.servicios;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Timestamp;
@@ -14,6 +15,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import saludtec.admincloud.web.utilidades.Archivo;
 import saludtec.admincloud.web.utilidades.Calendario;
 
 /**
@@ -36,9 +38,9 @@ public class Prueba extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
-            Date d = new Date();
-            out.println(new Timestamp(d.getTime()));
-            Date date = new Timestamp(d.getTime());
+//            Date d = new Date();
+//            out.println(new Timestamp(d.getTime()));
+//            Date date = new Timestamp(d.getTime());
 //            out.println("<br>");
 //            out.println(Calendario.fecha());
 //            out.println("<br>");
@@ -47,27 +49,51 @@ public class Prueba extends HttpServlet {
 //            out.println(Calendario.fecha());
 //            out.println("<br>");
 //            out.println(Calendario.fecha());
-            out.println("<br>");
-            out.println(request.getContextPath());
-            out.println("<br>");
-            out.println(request.getServletPath());
-            out.println("<br>");
-            out.println(request.getServletContext());
-            out.println("<br>");
-            out.println(request.getUserPrincipal());
-            out.println("<br>");
-            out.println(request.getRequestURI());
-            out.println("<br>");
-            out.println(request.getRequestURL());
-            out.println("<br>");
-            out.println(request.getPathInfo());
-            out.println("<br>");
-            out.println(request.getScheme());
-            out.println("<br>");
-            out.println(request.getProtocol());
-            out.println("<br>");
-            out.println(request.getRemoteAddr());
-            out.println("<br>");
+//            for (Integer i = 1; i <= 5526; i++) {               
+//                Archivo arch = new Archivo("10", i.toString());
+//                out.println(arch.crearDirectorioPaciente()+"<br>");
+//            }
+            File file = new File("/var/www");
+            double bytes = file.getTotalSpace();
+			double kilobytes = (bytes / 1024);
+			double megabytes = (kilobytes / 1024);
+			double gigabytes = (megabytes / 1024);
+			double terabytes = (gigabytes / 1024);
+			double petabytes = (terabytes / 1024);
+			double exabytes = (petabytes / 1024);
+			double zettabytes = (exabytes / 1024);
+			double yottabytes = (zettabytes / 1024);
+ 
+			out.println("bytes : " + bytes+"<br>");
+			out.println("kilobytes : " + kilobytes+"<br>");
+			out.println("megabytes : " + megabytes+"<br>");
+			out.println("gigabytes : " + gigabytes+"<br>");
+			out.println("terabytes : " + terabytes+"<br>");
+			out.println("petabytes : " + petabytes+"<br>");
+			out.println("exabytes : " + exabytes+"<br>");
+			out.println("zettabytes : " + zettabytes+"<br>");
+			out.println("yottabytes : " + yottabytes+"<br>");
+//            out.println("<br>");
+//            out.println(request.getContextPath());
+//            out.println("<br>");
+//            out.println(request.getServletPath());
+//            out.println("<br>");
+//            out.println(request.getServletContext());
+//            out.println("<br>");
+//            out.println(request.getUserPrincipal());
+//            out.println("<br>");
+//            out.println(request.getRequestURI());
+//            out.println("<br>");
+//            out.println(request.getRequestURL());
+//            out.println("<br>");
+//            out.println(request.getPathInfo());
+//            out.println("<br>");
+//            out.println(request.getScheme());
+//            out.println("<br>");
+//            out.println(request.getProtocol());
+//            out.println("<br>");
+//            out.println(request.getRemoteAddr());
+//            out.println("<br>");
 
         }
     }

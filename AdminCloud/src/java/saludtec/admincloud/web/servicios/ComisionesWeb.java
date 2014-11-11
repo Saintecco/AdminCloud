@@ -112,7 +112,7 @@ public class ComisionesWeb extends HttpServlet {
                     break;
 
                 default:
-                    response.sendError(501, "Metodo " + metodo + " no soportado.");
+                    response.sendError(501, "Metodo " + metodo + " no soportado");
                     break;
             }
         }
@@ -152,12 +152,12 @@ public class ComisionesWeb extends HttpServlet {
                 array = listarProcedimientos(r);
             } else {
                 obj = new JSONObject();
-                obj.put("error", "Error al guardar comision.");
+                obj.put("error", "Error al guardar comision");
                 array.add(obj);
             }
         } else if (cmsn.getEstado().equals("activo")) {
             obj = new JSONObject();
-            obj.put("error", "El procedimiento " + procedimiento.getProcedimiento() + " " + procedimiento.getCups() + " ya esta asociado a este profesional.");
+            obj.put("error", "El procedimiento " + procedimiento.getProcedimiento() + " " + procedimiento.getCups() + " ya esta asociado a este profesional");
             array.add(obj);
         } else if (cmsn.getEstado().equals("inactivo")) {
             comision.setFechaCreacion(cmsn.getFechaCreacion());
@@ -168,7 +168,7 @@ public class ComisionesWeb extends HttpServlet {
                 array = listarProcedimientos(r);
             } else {
                 obj = new JSONObject();
-                obj.put("error", "Error al guardar comision.");
+                obj.put("error", "Error al guardar comision");
                 array.add(obj);
             }
         }
@@ -217,11 +217,11 @@ public class ComisionesWeb extends HttpServlet {
                     obj.put("idComision", comision.getIdComision());
                 } else {
                     obj = new JSONObject();
-                    obj.put("error", "Error al guardar comision.");
+                    obj.put("error", "Error al guardar comision");
                 }
             } else if (cmsn.getEstado().equals("activo")) {
                 obj = new JSONObject();
-                obj.put("error", "El procedimiento " + procedimiento.getProcedimiento() + " " + procedimiento.getCups() + " ya esta asociado a este profesional.");
+                obj.put("error", "El procedimiento " + procedimiento.getProcedimiento() + " " + procedimiento.getCups() + " ya esta asociado a este profesional");
             } else if (cmsn.getEstado().equals("inactivo")) {
                 comision.setFechaCreacion(cmsn.getFechaCreacion());
                 comision = ejbComision.editar(comision);
@@ -230,7 +230,7 @@ public class ComisionesWeb extends HttpServlet {
                     obj.put("idComision", comision.getIdComision());
                 } else {
                     obj = new JSONObject();
-                    obj.put("error", "Error al guardar comision.");
+                    obj.put("error", "Error al guardar comision");
                 }
             }
         }
@@ -265,7 +265,7 @@ public class ComisionesWeb extends HttpServlet {
             array = listarComisiones(r);
         } else {
             obj = new JSONObject();
-            obj.put("error", "Error al editar comision.");
+            obj.put("error", "Error al editar comision");
             array.add(obj);
         }
         return array;

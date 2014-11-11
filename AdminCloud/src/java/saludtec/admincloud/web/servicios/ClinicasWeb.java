@@ -85,7 +85,7 @@ public class ClinicasWeb extends HttpServlet {
                     break;
 
                 default:
-                    response.sendError(501, "Metodo " + metodo + " no soportado.");
+                    response.sendError(501, "Metodo " + metodo + " no soportado");
                     break;
             }
         }
@@ -118,7 +118,7 @@ public class ClinicasWeb extends HttpServlet {
             array = listarClinica(r);
         } else {
             obj = new JSONObject();
-            obj.put("error", "Error al guardar la clinica.");
+            obj.put("error", "Error al guardar la clinica");
             array.add(obj);
         }
         return array;
@@ -145,7 +145,7 @@ public class ClinicasWeb extends HttpServlet {
             array = traerClinica(r);
         } else {
             obj = new JSONObject();
-            obj.put("error", "Error al editar la clinica.");
+            obj.put("error", "Error al editar la clinica");
             array.add(obj);
         }
         return array;

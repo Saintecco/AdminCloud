@@ -63,12 +63,7 @@ public class EstratosSocialesWeb extends HttpServlet {
                             break;
 
                         case "/eliminar":
-                            Integer rsp = eliminarEstratoSocial(request);
-                            if (rsp == 200) {
-                                listarEstratosSociales(request).writeJSONString(out);
-                            } else {
-                                response.sendError(400, "Estrato social no eliminado");
-                            }
+                            eliminarEstratoSocial(request).writeJSONString(out);
                             break;
 
                         default:
@@ -94,7 +89,7 @@ public class EstratosSocialesWeb extends HttpServlet {
                     break;
 
                 default:
-                    response.sendError(501, "Metodo " + metodo + " no soportado.");
+                    response.sendError(501, "Metodo " + metodo + " no soportado");
                     break;
             }
         }
@@ -117,7 +112,7 @@ public class EstratosSocialesWeb extends HttpServlet {
             array=listarEstratosSociales(r);
         } else {
             obj = new JSONObject();
-            obj.put("error", "Error al guardar estrato.");
+            obj.put("error", "Error al guardar estrato");
             array.add(obj);
         }
         return array;
@@ -136,15 +131,30 @@ public class EstratosSocialesWeb extends HttpServlet {
             array=listarEstratosSociales(r);
         } else {
             obj = new JSONObject();
-            obj.put("error", "Error al editar estrato.");
+            obj.put("error", "Error al editar estrato");
             array.add(obj);
         }
         return array;
     }
 
-    public Integer eliminarEstratoSocial(HttpServletRequest r) {
-        Integer ok = ejbEstratoSocial.eliminar(Integer.parseInt(r.getParameter("idEstratoSocial")));
-        return ok;
+    public JSONArray eliminarEstratoSocial(HttpServletRequest r) {
+        JSONArray array = new JSONArray();
+        JSONObject obj = null;
+        EstratosSociales estratoSocial = ejbEstratoSocial.traer(Integer.parseInt(r.getParameter("idEstratoSocial")));
+        if (estratoSocial != null) {
+            if (estratoSocial.getPacientesList().size() > 0) {
+                obj = new JSONObject();
+                obj.put("error", "No se puede eliminar estrato '" + estratoSocial.getEstratoSocial()+ "' porque esta asociado a uno varios pacientes");
+                array.add(obj);
+            } else {
+                estratoSocial.setEstado("inactivo");
+                estratoSocial = ejbEstratoSocial.editar(estratoSocial);
+                obj = new JSONObject();
+                obj.put("idEstratoSocial", estratoSocial.getIdEstratoSocial());
+                array = listarEstratosSociales(r);
+            }
+        }
+        return array;
     }
 
     public JSONArray listarEstratosSociales(HttpServletRequest r) {
@@ -178,7 +188,7 @@ public class EstratosSocialesWeb extends HttpServlet {
     }
     // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code">
     /**
      * Handles the HTTP <code>GET</code> method.
      *

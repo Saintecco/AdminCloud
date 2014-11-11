@@ -63,12 +63,7 @@ public class CompaniasSeguroWeb extends HttpServlet {
                             break;
 
                         case "/eliminar":
-                            Integer rsp = eliminarCompaniaDeSeguro(request);
-                            if (rsp == 200) {
-                                listarCompaniasDeSeguros(request).writeJSONString(out);
-                            } else {
-                                response.sendError(400, "Compania de seguro no eliminado");
-                            }
+                            eliminarCompaniaDeSeguro(request).writeJSONString(out);
                             break;
 
                         default:
@@ -94,7 +89,7 @@ public class CompaniasSeguroWeb extends HttpServlet {
                     break;
 
                 default:
-                    response.sendError(501, "Metodo " + metodo + " no soportado.");
+                    response.sendError(501, "Metodo " + metodo + " no soportado");
                     break;
             }
         }
@@ -117,10 +112,10 @@ public class CompaniasSeguroWeb extends HttpServlet {
             if (companiaSeguro.getIdCompaniaDeSeguro() != null) {
                 obj = new JSONObject();
                 obj.put("idCompaniaSeguro", companiaSeguro.getIdCompaniaDeSeguro());
-                array=listarCompaniasDeSeguros(r);
+                array = listarCompaniasDeSeguros(r);
             } else {
                 obj = new JSONObject();
-                obj.put("error", "Error al guardar compania de seguro.");
+                obj.put("error", "Error al guardar compania de seguro");
                 array.add(obj);
             }
         } else {
@@ -139,21 +134,42 @@ public class CompaniasSeguroWeb extends HttpServlet {
             companiaSeguro.setCompaniaDeSeguro(r.getParameter("companiaSeguro"));
             companiaSeguro.setCodigo(r.getParameter("codigoCompaniaSeguro"));
             companiaSeguro.setUltimaEdicion(fechaActual);
-            companiaSeguro = ejbCompaniaSeguro.editar(companiaSeguro);
-            obj = new JSONObject();
-            obj.put("idCompaniaSeguro", companiaSeguro.getIdCompaniaDeSeguro());
-            array=listarCompaniasDeSeguros(r);
+            if (ejbCompaniaSeguro.traer(companiaSeguro.getCodigo(), sesion.clinica(r.getSession())).getIdCompaniaDeSeguro() == companiaSeguro.getIdCompaniaDeSeguro()) {
+                companiaSeguro = ejbCompaniaSeguro.editar(companiaSeguro);
+                obj = new JSONObject();
+                obj.put("idCompaniaSeguro", companiaSeguro.getIdCompaniaDeSeguro());
+                array = listarCompaniasDeSeguros(r);
+            } else {
+                obj = new JSONObject();
+                obj.put("error", "Ya existe una compania de seguro con el codigo " + companiaSeguro.getCodigo());
+                array.add(obj);
+            }
         } else {
             obj = new JSONObject();
-            obj.put("error", "Error al editar compania de seguro.");
+            obj.put("error", "Error al editar compania de seguro");
             array.add(obj);
         }
         return array;
     }
 
-    public Integer eliminarCompaniaDeSeguro(HttpServletRequest r) {
-        Integer ok = ejbCompaniaSeguro.eliminar(Integer.parseInt(r.getParameter("idCompaniaSeguro")));
-        return ok;
+    public JSONArray eliminarCompaniaDeSeguro(HttpServletRequest r) {
+        JSONArray array = new JSONArray();
+        JSONObject obj = null;
+        CompaniasDeSeguros companiaSeguro = ejbCompaniaSeguro.traer(Integer.parseInt(r.getParameter("idCompaniaSeguro")));
+        if (companiaSeguro != null) {
+            if (companiaSeguro.getPacientesList().size() > 0) {
+                obj = new JSONObject();
+                obj.put("error", "No se puede eliminar compañia de seguro '" + companiaSeguro.getCompaniaDeSeguro() + "' porque esta asociado a uno varios pacientes");
+                array.add(obj);
+            } else {
+                companiaSeguro.setEstado("inactivo");
+                companiaSeguro = ejbCompaniaSeguro.editar(companiaSeguro);
+                obj = new JSONObject();
+                obj.put("idCompaniaSeguro", companiaSeguro.getIdCompaniaDeSeguro());
+                array = listarCompaniasDeSeguros(r);
+            }
+        }
+        return array;
     }
 
     public JSONArray listarCompaniasDeSeguros(HttpServletRequest r) {

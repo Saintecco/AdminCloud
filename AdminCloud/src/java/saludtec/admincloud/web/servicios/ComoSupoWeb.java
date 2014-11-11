@@ -94,7 +94,7 @@ public class ComoSupoWeb extends HttpServlet {
                     break;
 
                 default:
-                    response.sendError(501, "Metodo " + metodo + " no soportado.");
+                    response.sendError(501, "Metodo " + metodo + " no soportado");
                     break;
             }
         }
@@ -117,7 +117,7 @@ public class ComoSupoWeb extends HttpServlet {
             array=listarComoSupo(r);
         } else {
             obj = new JSONObject();
-            obj.put("error", "Error al guardar referencia.");
+            obj.put("error", "Error al guardar referencia");
             array.add(obj);
         }
         return array;
@@ -136,7 +136,7 @@ public class ComoSupoWeb extends HttpServlet {
             array=listarComoSupo(r);
         } else {
             obj = new JSONObject();
-            obj.put("error", "Error al editar la referencia.");
+            obj.put("error", "Error al editar la referencia");
             array.add(obj);
         }
         return array;

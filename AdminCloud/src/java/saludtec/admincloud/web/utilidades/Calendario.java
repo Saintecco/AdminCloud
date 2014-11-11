@@ -49,4 +49,24 @@ public class Calendario {
         return hora;
     }
 
+    public static Date stringFecha(String fechaString) {
+        Date fecha = new Date();
+        try {
+            fecha = new SimpleDateFormat("yyyy-mm-dd").parse(fechaString);
+        } catch (ParseException ex) {
+            Logger.getLogger(Calendario.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return fecha;
+    }
+    
+    public static Date stringHora(String horaString) {
+        Date hora = new Date();
+        try {
+            hora = new SimpleDateFormat("hh:mm:ss").parse(horaString);
+        } catch (ParseException ex) {
+            Logger.getLogger(Calendario.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return hora;
+    }
+
 }

@@ -63,12 +63,7 @@ public class CategoriasProcedimientosWeb extends HttpServlet {
                             break;
 
                         case "/eliminar":
-                            Integer rsp = eliminarCategoriaProcedimiento(request);
-                            if (rsp == 200) {
-                                listarCategoriasProcedimientos(request).writeJSONString(out);
-                            } else {
-                                response.sendError(400, "Categoria procedimiento no eliminado");
-                            }
+                            eliminarCategoriaProcedimiento(request).writeJSONString(out);
                             break;
 
                         default:
@@ -94,7 +89,7 @@ public class CategoriasProcedimientosWeb extends HttpServlet {
                     break;
 
                 default:
-                    response.sendError(501, "Metodo " + metodo + " no soportado.");
+                    response.sendError(501, "Metodo " + metodo + " no soportado");
                     break;
             }
         }
@@ -117,7 +112,7 @@ public class CategoriasProcedimientosWeb extends HttpServlet {
             array = listarCategoriasProcedimientos(r);
         } else {
             obj = new JSONObject();
-            obj.put("error", "Error al guardar categoria.");
+            obj.put("error", "Error al guardar categoria");
             array.add(obj);
         }
         return array;
@@ -133,18 +128,33 @@ public class CategoriasProcedimientosWeb extends HttpServlet {
             categoriaProcedimiento = ejbCategoriaProcedimiento.editar(categoriaProcedimiento);
             obj = new JSONObject();
             obj.put("idCategoriaProcedimiento", categoriaProcedimiento.getIdCategoriaProcedimiento());
-            array=listarCategoriasProcedimientos(r);
+            array = listarCategoriasProcedimientos(r);
         } else {
             obj = new JSONObject();
-            obj.put("error", "Error al editar la categoria.");
+            obj.put("error", "Error al editar la categoria");
             array.add(obj);
         }
         return array;
     }
 
-    public Integer eliminarCategoriaProcedimiento(HttpServletRequest r) {
-        Integer ok = ejbCategoriaProcedimiento.eliminar(Integer.parseInt(r.getParameter("idCategoriaProcedimiento")));
-        return ok;
+    public JSONArray eliminarCategoriaProcedimiento(HttpServletRequest r) {
+        JSONArray array = new JSONArray();
+        JSONObject obj = null;
+        CategoriasProcedimientos categoriaProcedimiento = ejbCategoriaProcedimiento.traer(Integer.parseInt(r.getParameter("idCategoriaProcedimiento")));
+        if (categoriaProcedimiento != null) {
+            if (categoriaProcedimiento.getProcedimientosList().size() > 0) {
+                obj = new JSONObject();
+                obj.put("error", "No se puede eliminar categoriaProcedimiento '" + categoriaProcedimiento.getCategoriaProcedimiento()+ "' porque esta asociado a uno varios procedimientos");
+                array.add(obj);
+            } else {
+                categoriaProcedimiento.setEstado("inactivo");
+                categoriaProcedimiento = ejbCategoriaProcedimiento.editar(categoriaProcedimiento);
+                obj = new JSONObject();
+                obj.put("idCategoriaProcedimiento", categoriaProcedimiento.getIdCategoriaProcedimiento());
+                array = listarCategoriasProcedimientos(r);
+            }
+        }
+        return array;
     }
 
     public JSONArray listarCategoriasProcedimientos(HttpServletRequest r) {

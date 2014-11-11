@@ -98,7 +98,7 @@ public class Profesionalesweb extends HttpServlet {
                     break;
 
                 default:
-                    response.sendError(501, "Metodo " + metodo + " no soportado.");
+                    response.sendError(501, "Metodo " + metodo + " no soportado");
                     break;
             }
         }
@@ -127,7 +127,7 @@ public class Profesionalesweb extends HttpServlet {
             array = listarProfesionales(r);
         } else {
             obj = new JSONObject();
-            obj.put("error", "Error al guardar tipo de documento.");
+            obj.put("error", "Error al guardar tipo de documento");
             array.add(obj);
         }
         return array;
@@ -153,7 +153,7 @@ public class Profesionalesweb extends HttpServlet {
             array = listarProfesionales(r);
         } else {
             obj = new JSONObject();
-            obj.put("error", "Error al guardar profesional.");
+            obj.put("error", "Error al guardar profesional");
             array.add(obj);
         }
         return array;

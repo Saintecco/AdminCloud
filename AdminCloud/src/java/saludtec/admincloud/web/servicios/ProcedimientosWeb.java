@@ -20,7 +20,7 @@ import org.json.simple.JSONObject;
 import saludtec.admincloud.ejb.crud.CategoriasProcedimientosEjb;
 import saludtec.admincloud.ejb.crud.ConveniosEjb;
 import saludtec.admincloud.ejb.crud.ProcedimientosEjb;
-import saludtec.admincloud.ejb.crud.RelProcedimientosConveniosEjb;
+import saludtec.admincloud.ejb.crud.ConveniosProcedimientosEjb;
 import saludtec.admincloud.ejb.entidades.Procedimientos;
 import saludtec.admincloud.web.utilidades.Calendario;
 import saludtec.admincloud.web.utilidades.Sesion;
@@ -47,7 +47,7 @@ public class ProcedimientosWeb extends HttpServlet {
     @EJB
     ConveniosEjb ejbConvenio;
     @EJB
-    RelProcedimientosConveniosEjb ejbProcedimientoConvenio;
+    ConveniosProcedimientosEjb ejbProcedimientoConvenio;
     Sesion sesion = new Sesion();
     Date fechaActual = Calendario.fechaCompleta();
 
@@ -72,12 +72,7 @@ public class ProcedimientosWeb extends HttpServlet {
                             break;
 
                         case "/eliminar":
-                            Integer rsp = eliminarProcedimiento(request);
-                            if (rsp == 200) {
-                                listarProcedimientos(request).writeJSONString(out);
-                            } else {
-                                response.sendError(400, "Procedimiento no eliminado");
-                            }
+                            eliminarProcedimiento(request).writeJSONString(out);
                             break;
 
                         default:
@@ -103,7 +98,7 @@ public class ProcedimientosWeb extends HttpServlet {
                     break;
 
                 default:
-                    response.sendError(501, "Metodo " + metodo + " no soportado.");
+                    response.sendError(501, "Metodo " + metodo + " no soportado");
                     break;
             }
         }
@@ -135,7 +130,7 @@ public class ProcedimientosWeb extends HttpServlet {
                 array = listarProcedimientos(r);
             } else {
                 obj = new JSONObject();
-                obj.put("error", "Error al agregar procedimiento.");
+                obj.put("error", "Error al agregar procedimiento");
                 array.add(obj);
             }
         } else {
@@ -163,21 +158,37 @@ public class ProcedimientosWeb extends HttpServlet {
             procedimiento.setFechaCreacion(fechaActual);
             procedimiento.setUltimaEdicion(fechaActual);
             procedimiento.setIdClinica(sesion.clinica(r.getSession()));
-            procedimiento = ejbProcedimiento.editar(procedimiento);
-            obj = new JSONObject();
-            obj.put("idProcedimiento", procedimiento.getIdProcedimiento());
-            array = listarProcedimientos(r);
+            if (ejbProcedimiento.traer(procedimiento.getCups(), sesion.clinica(r.getSession())).getIdProcedimiento() == procedimiento.getIdProcedimiento()) {
+                procedimiento = ejbProcedimiento.editar(procedimiento);
+                obj = new JSONObject();
+                obj.put("idProcedimiento", procedimiento.getIdProcedimiento());
+                array = listarProcedimientos(r);
+            } else {
+                obj = new JSONObject();
+                obj.put("error", "Ya existe un procedimiento con el codigo cups " + procedimiento.getCups());
+                array.add(obj);
+            }
         } else {
             obj = new JSONObject();
-            obj.put("error", "Error al editar procedimiento.");
+            obj.put("error", "Error al editar procedimiento");
             array.add(obj);
         }
         return array;
     }
 
-    public Integer eliminarProcedimiento(HttpServletRequest r) {
-        Integer ok = ejbProcedimiento.eliminar(Integer.parseInt(r.getParameter("idProcedimiento")));
-        return ok;
+    public JSONArray eliminarProcedimiento(HttpServletRequest r) {
+        JSONArray array = new JSONArray();
+        JSONObject obj = null;
+        Procedimientos procedimiento = ejbProcedimiento.traer(Integer.parseInt(r.getParameter("idProcedimiento")));
+        if (procedimiento != null) {
+            procedimiento.setEstado("inactivo");
+            procedimiento = ejbProcedimiento.editar(procedimiento);
+            obj = new JSONObject();
+            obj.put("idProcedimiento", procedimiento.getIdProcedimiento());
+            array = listarProcedimientos(r);
+        }
+
+        return array;
     }
 
     public JSONArray listarProcedimientos(HttpServletRequest r) {
@@ -191,6 +202,7 @@ public class ProcedimientosWeb extends HttpServlet {
                     obj.put("idProcedimiento", procedimiento.getIdProcedimiento());
                     obj.put("procedimiento", procedimiento.getProcedimiento());
                     obj.put("idCategoriaProcedimiento", procedimiento.getIdCategoriaProcedimiento().getIdCategoriaProcedimiento());
+                    obj.put("categoriaProcedimiento", procedimiento.getIdCategoriaProcedimiento().getCategoriaProcedimiento());
                     obj.put("rango", procedimiento.getRango());
                     obj.put("actoQuirurjico", procedimiento.getActoQuirurgico());
                     obj.put("ambitoRealizacion", procedimiento.getAmbitoRealizacion());

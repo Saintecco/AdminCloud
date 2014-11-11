@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package saludtec.admincloud.web.servicios;
 
 import java.io.IOException;
@@ -38,12 +37,11 @@ public class TiposVinculacionWeb extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    
     @EJB
     TiposVinculacionEjb ejbTipoVinculacion;
     Sesion sesion = new Sesion();
-    Date fechaActual=Calendario.fechaCompleta();
-    
+    Date fechaActual = Calendario.fechaCompleta();
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -65,12 +63,7 @@ public class TiposVinculacionWeb extends HttpServlet {
                             break;
 
                         case "/eliminar":
-                            Integer rsp = eliminarTipoVinculacion(request);
-                            if (rsp == 200) {
-                                listarTiposVinculacion(request).writeJSONString(out);
-                            } else {
-                                response.sendError(400, "Tipo de vinculacion no eliminado");
-                            }
+                            eliminarTipoVinculacion(request).writeJSONString(out);
                             break;
 
                         default:
@@ -96,7 +89,7 @@ public class TiposVinculacionWeb extends HttpServlet {
                     break;
 
                 default:
-                    response.sendError(501, "Metodo " + metodo + " no soportado.");
+                    response.sendError(501, "Metodo " + metodo + " no soportado");
                     break;
             }
         }
@@ -115,11 +108,11 @@ public class TiposVinculacionWeb extends HttpServlet {
         tipoVinculacion = ejbTipoVinculacion.guardar(tipoVinculacion);
         if (tipoVinculacion.getIdTipoDeVinculacion() != null) {
             obj = new JSONObject();
-            obj.put("idTipoDocumento", tipoVinculacion.getIdTipoDeVinculacion());
-            array=listarTiposVinculacion(r);
-        }else {
+            obj.put("idTipoVinculacion", tipoVinculacion.getIdTipoDeVinculacion());
+            array = listarTiposVinculacion(r);
+        } else {
             obj = new JSONObject();
-            obj.put("error", "Error al guardar el tipo de vinculacion.");
+            obj.put("error", "Error al guardar el tipo de vinculacion");
             array.add(obj);
         }
         return array;
@@ -135,18 +128,33 @@ public class TiposVinculacionWeb extends HttpServlet {
             tipoVinculacion = ejbTipoVinculacion.editar(tipoVinculacion);
             obj = new JSONObject();
             obj.put("idTipoVinculacion", tipoVinculacion.getIdTipoDeVinculacion());
-            array=listarTiposVinculacion(r);
-        }else {
+            array = listarTiposVinculacion(r);
+        } else {
             obj = new JSONObject();
-            obj.put("error", "Error al editar el tipo de vinculacion.");
+            obj.put("error", "Error al editar el tipo de vinculacion");
             array.add(obj);
         }
         return array;
     }
 
-    public Integer eliminarTipoVinculacion(HttpServletRequest r) {
-        Integer ok = ejbTipoVinculacion.eliminar(Integer.parseInt(r.getParameter("idTipoVinculacion")));
-        return ok;
+    public JSONArray eliminarTipoVinculacion(HttpServletRequest r) {
+        JSONArray array = new JSONArray();
+        JSONObject obj = null;
+        TiposDeVinculacion tipoVinculacion = ejbTipoVinculacion.traer(Integer.parseInt(r.getParameter("idTipoVinculacion")));
+        if (tipoVinculacion != null) {
+            if (tipoVinculacion.getPacientesList().size() > 0) {
+                obj = new JSONObject();
+                obj.put("error", "No se puede eliminar tipo de vinculacion '" + tipoVinculacion.getTipoDeVinculacion() + "' porque esta asociado a uno varios pacientes");
+                array.add(obj);
+            } else {
+                tipoVinculacion.setEstado("inactivo");
+                tipoVinculacion = ejbTipoVinculacion.editar(tipoVinculacion);
+                obj = new JSONObject();
+                obj.put("idTipoVinculacion", tipoVinculacion.getIdTipoDeVinculacion());
+                array = listarTiposVinculacion(r);
+            }
+        }
+        return array;
     }
 
     public JSONArray listarTiposVinculacion(HttpServletRequest r) {

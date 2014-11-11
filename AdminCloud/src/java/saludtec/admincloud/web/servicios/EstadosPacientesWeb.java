@@ -63,12 +63,7 @@ public class EstadosPacientesWeb extends HttpServlet {
                             break;
 
                         case "/eliminar":
-                            Integer rsp = eliminarEstadoPaciente(request);
-                            if (rsp == 200) {
-                                listarEstadosPacientes(request).writeJSONString(out);
-                            } else {
-                                response.sendError(400, "Estado paciente no eliminado");
-                            }
+                            eliminarEstadoPaciente(request).writeJSONString(out);
                             break;
 
                         default:
@@ -94,7 +89,7 @@ public class EstadosPacientesWeb extends HttpServlet {
                     break;
 
                 default:
-                    response.sendError(501, "Metodo " + metodo + " no soportado.");
+                    response.sendError(501, "Metodo " + metodo + " no soportado");
                     break;
             }
         }
@@ -114,10 +109,10 @@ public class EstadosPacientesWeb extends HttpServlet {
         if (estadoPaciente.getIdEstadoPaciente() != null) {
             obj = new JSONObject();
             obj.put("idEstadoPaciente", estadoPaciente.getIdEstadoPaciente());
-            array=listarEstadosPacientes(r);
+            array = listarEstadosPacientes(r);
         } else {
             obj = new JSONObject();
-            obj.put("error", "Error al guardar estado paciente.");
+            obj.put("error", "Error al guardar estado paciente");
             array.add(obj);
         }
         return array;
@@ -133,18 +128,33 @@ public class EstadosPacientesWeb extends HttpServlet {
             estadoPaciente = ejbEstadoPaciente.editar(estadoPaciente);
             obj = new JSONObject();
             obj.put("idEstadoPaciente", estadoPaciente.getIdEstadoPaciente());
-            array=listarEstadosPacientes(r);
+            array = listarEstadosPacientes(r);
         } else {
             obj = new JSONObject();
-            obj.put("error", "Error al editar estado paciente.");
+            obj.put("error", "Error al editar estado paciente");
             array.add(obj);
         }
         return array;
     }
 
-    public Integer eliminarEstadoPaciente(HttpServletRequest r) {
-        Integer ok = ejbEstadoPaciente.eliminar(Integer.parseInt(r.getParameter("idEstadoPaciente")));
-        return ok;
+    public JSONArray eliminarEstadoPaciente(HttpServletRequest r) {
+        JSONArray array = new JSONArray();
+        JSONObject obj = null;
+        EstadosPacientes estadoPaciente = ejbEstadoPaciente.traer(Integer.parseInt(r.getParameter("idEstadoPaciente")));
+        if (estadoPaciente != null) {
+            if (estadoPaciente.getPacientesList().size() > 0) {
+                obj = new JSONObject();
+                obj.put("error", "No se puede eliminar estado paciente '" + estadoPaciente.getEstadoPaciente()+ "' porque esta asociado a uno varios pacientes");
+                array.add(obj);
+            } else {
+                estadoPaciente.setEstado("inactivo");
+                estadoPaciente = ejbEstadoPaciente.editar(estadoPaciente);
+                obj = new JSONObject();
+                obj.put("idEstadoPaciente", estadoPaciente.getIdEstadoPaciente());
+                array = listarEstadosPacientes(r);
+            }
+        }
+        return array;
     }
 
     public JSONArray listarEstadosPacientes(HttpServletRequest r) {

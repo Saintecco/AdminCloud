@@ -29,6 +29,14 @@ import saludtec.admincloud.web.utilidades.Sesion;
 @WebServlet(name = "TiposDocumentosWeb", urlPatterns = {"/tiposDocumentos/*"})
 public class TiposDocumentosWeb extends HttpServlet {
 
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
     @EJB
     TiposDocumentosEjb ejbTipoDocumento;
     Sesion sesion = new Sesion();
@@ -55,12 +63,7 @@ public class TiposDocumentosWeb extends HttpServlet {
                             break;
 
                         case "/eliminar":
-                            Integer rsp = eliminarTipoDocumento(request);
-                            if (rsp == 200) {
-                                listarTiposDocumentos(request).writeJSONString(out);
-                            } else {
-                                response.sendError(400, "Documento no eliminado");
-                            }
+                            eliminarTipoDocumento(request).writeJSONString(out);
                             break;
 
                         default:
@@ -86,13 +89,13 @@ public class TiposDocumentosWeb extends HttpServlet {
                     break;
 
                 default:
-                    response.sendError(501, "Metodo " + metodo + " no soportado.");
+                    response.sendError(501, "Metodo " + metodo + " no soportado");
                     break;
             }
         }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="Metodos CRUD departamentos">
+    // <editor-fold defaultstate="collapsed" desc="Metodos CRUD tipos de documentos">
     public JSONArray guardarTipoDocumento(HttpServletRequest r) {
         JSONArray array = new JSONArray();
         JSONObject obj = null;
@@ -106,10 +109,10 @@ public class TiposDocumentosWeb extends HttpServlet {
         if (tipoDocumento.getIdTipoDeDocumento() != null) {
             obj = new JSONObject();
             obj.put("idTipoDocumento", tipoDocumento.getIdTipoDeDocumento());
-            array=listarTiposDocumentos(r);
+            array = listarTiposDocumentos(r);
         } else {
             obj = new JSONObject();
-            obj.put("error", "Error al guardar tipo de documento.");
+            obj.put("error", "Error al guardar tipo de documento");
             array.add(obj);
         }
         return array;
@@ -125,18 +128,37 @@ public class TiposDocumentosWeb extends HttpServlet {
             tipoDocumento = ejbTipoDocumento.editar(tipoDocumento);
             obj = new JSONObject();
             obj.put("idTipoDocumento", tipoDocumento.getIdTipoDeDocumento());
-            array=listarTiposDocumentos(r);
+            array = listarTiposDocumentos(r);
         } else {
             obj = new JSONObject();
-            obj.put("error", "Error al guardar tipo de documento.");
+            obj.put("error", "Error al guardar tipo de documento");
             array.add(obj);
         }
         return array;
     }
 
-    public Integer eliminarTipoDocumento(HttpServletRequest r) {
-        Integer ok = ejbTipoDocumento.eliminar(Integer.parseInt(r.getParameter("idTipoDocumento")));
-        return ok;
+    public JSONArray eliminarTipoDocumento(HttpServletRequest r) {
+        JSONArray array = new JSONArray();
+        JSONObject obj = null;
+        TiposDeDocumentos tipoDocumento = ejbTipoDocumento.traer(Integer.parseInt(r.getParameter("idTipoDocumento")));
+        if (tipoDocumento != null) {
+            if (tipoDocumento.getPacientesList().size() > 0) {
+                obj = new JSONObject();
+                obj.put("error", "No se puede eliminar tipo de documento '" + tipoDocumento.getTipoDeDocumento() + "' porque esta asociado a uno varios pacientes");
+                array.add(obj);
+            } else if (tipoDocumento.getProfesionalesList().size() > 0) {
+                obj = new JSONObject();
+                obj.put("error", "No se puede eliminar tipo de documento '" + tipoDocumento.getTipoDeDocumento() + "' porque esta asociado a uno varios profesionales");
+                array.add(obj);
+            } else {
+                tipoDocumento.setEstado("inactivo");
+                tipoDocumento = ejbTipoDocumento.editar(tipoDocumento);
+                obj = new JSONObject();
+                obj.put("idTipoDocumento", tipoDocumento.getIdTipoDeDocumento());
+                array = listarTiposDocumentos(r);
+            }
+        }
+        return array;
     }
 
     public JSONArray listarTiposDocumentos(HttpServletRequest r) {
