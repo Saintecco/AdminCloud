@@ -144,7 +144,7 @@ public class ComisionesWeb extends HttpServlet {
             }
         }
         Comisiones cmsn = ejbComision.traer(profesional, procedimiento);
-        if (cmsn == null) {
+        if (cmsn == null || cmsn.getEstado().equals("inactivo")) {
             comision = ejbComision.guardar(comision);
             if (comision.getIdComision() != null) {
                 obj = new JSONObject();
@@ -155,22 +155,10 @@ public class ComisionesWeb extends HttpServlet {
                 obj.put("error", "Error al guardar comision");
                 array.add(obj);
             }
-        } else if (cmsn.getEstado().equals("activo")) {
+        } else {
             obj = new JSONObject();
             obj.put("error", "El procedimiento " + procedimiento.getProcedimiento() + " " + procedimiento.getCups() + " ya esta asociado a este profesional");
             array.add(obj);
-        } else if (cmsn.getEstado().equals("inactivo")) {
-            comision.setFechaCreacion(cmsn.getFechaCreacion());
-            comision = ejbComision.editar(comision);
-            if (comision.getIdComision() != null) {
-                obj = new JSONObject();
-                obj.put("idComision", comision.getIdComision());
-                array = listarProcedimientos(r);
-            } else {
-                obj = new JSONObject();
-                obj.put("error", "Error al guardar comision");
-                array.add(obj);
-            }
         }
         return array;
     }
@@ -210,7 +198,7 @@ public class ComisionesWeb extends HttpServlet {
                 }
             }
             Comisiones cmsn = ejbComision.traer(profesional, procedimiento);
-            if (cmsn == null) {
+            if (cmsn == null || cmsn.getEstado().equals("inactivo")) {
                 comision = ejbComision.guardar(comision);
                 if (comision.getIdComision() != null) {
                     obj = new JSONObject();
@@ -219,19 +207,9 @@ public class ComisionesWeb extends HttpServlet {
                     obj = new JSONObject();
                     obj.put("error", "Error al guardar comision");
                 }
-            } else if (cmsn.getEstado().equals("activo")) {
+            } else {
                 obj = new JSONObject();
                 obj.put("error", "El procedimiento " + procedimiento.getProcedimiento() + " " + procedimiento.getCups() + " ya esta asociado a este profesional");
-            } else if (cmsn.getEstado().equals("inactivo")) {
-                comision.setFechaCreacion(cmsn.getFechaCreacion());
-                comision = ejbComision.editar(comision);
-                if (comision.getIdComision() != null) {
-                    obj = new JSONObject();
-                    obj.put("idComision", comision.getIdComision());
-                } else {
-                    obj = new JSONObject();
-                    obj.put("error", "Error al guardar comision");
-                }
             }
         }
         array = listarProcedimientos(r);
@@ -259,10 +237,16 @@ public class ComisionesWeb extends HttpServlet {
                     comision.setTotal(procedimiento.getValor());
                 }
             }
-            comision = ejbComision.editar(comision);
-            obj = new JSONObject();
-            obj.put("idComision", comision.getIdComision());
-            array = listarComisiones(r);
+            Comisiones cmsn = ejbComision.traer(comision.getIdProfesional(), procedimiento);
+            if (cmsn == null || cmsn.getIdComision() == comision.getIdComision() || cmsn.getEstado().equals("inactivo")) {
+                comision = ejbComision.editar(comision);
+                obj = new JSONObject();
+                obj.put("idComision", comision.getIdComision());
+                array = listarComisiones(r);
+            } else {
+                obj = new JSONObject();
+                obj.put("error", "El procedimiento " + procedimiento.getProcedimiento() + " " + procedimiento.getCups() + " ya esta asociado a este profesional");
+            }
         } else {
             obj = new JSONObject();
             obj.put("error", "Error al editar comision");
@@ -282,14 +266,14 @@ public class ComisionesWeb extends HttpServlet {
         List<Profesionales> profesionales = ejbProfesional.listar(sesion.clinica(r.getSession()));
         if (profesionales != null) {
             for (Profesionales profesional : profesionales) {
-                if (profesional.getEstado().equals("activo") && profesional.getComisionesList().size()>0) {
+                if (profesional.getEstado().equals("activo") && profesional.getComisionesList().size() > 0) {
                     obj = new JSONObject();
                     obj.put("idProfesional", profesional.getIdProfesional());
                     obj.put("nombre", profesional.getNombre());
                     obj.put("apellido", profesional.getApellido());
                     obj.put("tipoDeDocumento", profesional.getIdTipoDeDocumento().getTipoDeDocumento());
                     obj.put("numeroDocumento", profesional.getNumeroDeDocumento());
-                    obj.put("cantidadProcedimientos", profesional.getComisionesList().size()-1);
+                    obj.put("cantidadProcedimientos", profesional.getComisionesList().size() - 1);
                     array.add(obj);
                 }
             }

@@ -106,7 +106,8 @@ public class DepartamentosWeb extends HttpServlet {
         departamento.setFechaCreacion(fechaActual);
         departamento.setUltimaEdicion(fechaActual);
         departamento.setIdClinica(sesion.clinica(r.getSession()));
-        if (ejbDepartamento.traer(departamento.getCodigo(), sesion.clinica(r.getSession())) == null) {
+        Departamentos dpmnt = ejbDepartamento.traer(departamento.getCodigo(), sesion.clinica(r.getSession()));
+        if (dpmnt == null || dpmnt.getEstado().equals("inactivo")) {
             departamento = ejbDepartamento.guardar(departamento);
             if (departamento.getIdDepartamento() != null) {
                 obj = new JSONObject();
@@ -133,10 +134,17 @@ public class DepartamentosWeb extends HttpServlet {
             departamento.setDepartamento(r.getParameter("departamento"));
             departamento.setCodigo(r.getParameter("codigoDepartamento"));
             departamento.setUltimaEdicion(fechaActual);
-            departamento = ejbDepartamento.editar(departamento);
-            obj = new JSONObject();
-            obj.put("idDepartamento", departamento.getIdDepartamento());
-            array = listarDepartamentos(r);
+            Departamentos dpmnt = ejbDepartamento.traer(departamento.getCodigo(), sesion.clinica(r.getSession()));
+            if (dpmnt == null || dpmnt.getIdDepartamento() == departamento.getIdDepartamento() || dpmnt.getEstado().equals("inactivo")) {
+                departamento = ejbDepartamento.editar(departamento);
+                obj = new JSONObject();
+                obj.put("idDepartamento", departamento.getIdDepartamento());
+                array = listarDepartamentos(r);
+            } else {
+                obj = new JSONObject();
+                obj.put("error", "Ya existe un departamento con el codigo " + departamento.getCodigo());
+                array.add(obj);
+            }
         } else {
             obj = new JSONObject();
             obj.put("error", "Error al editar departamento");
@@ -152,7 +160,7 @@ public class DepartamentosWeb extends HttpServlet {
         if (departamento != null) {
             if (departamento.getPacientesList().size() > 0) {
                 obj = new JSONObject();
-                obj.put("error", "No se puede eliminar departamento '" + departamento.getDepartamento()+ "' porque esta asociado a uno varios pacientes");
+                obj.put("error", "No se puede eliminar departamento '" + departamento.getDepartamento() + "' porque esta asociado a uno varios pacientes");
                 array.add(obj);
             } else {
                 departamento.setEstado("inactivo");

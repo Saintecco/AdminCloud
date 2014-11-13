@@ -120,14 +120,21 @@ public class Profesionalesweb extends HttpServlet {
         profesional.setFechaCreacion(fechaActual);
         profesional.setUltimaEdicion(fechaActual);
         profesional.setIdClinica(sesion.clinica(r.getSession()));
-        profesional = ejbProfesional.guardar(profesional);
-        if (profesional.getIdTipoDeDocumento() != null) {
-            obj = new JSONObject();
-            obj.put("idTipoDocumento", profesional.getIdTipoDeDocumento());
-            array = listarProfesionales(r);
+        Profesionales pfrs = ejbProfesional.traer(profesional.getNumeroDeDocumento(), sesion.clinica(r.getSession()));
+        if (pfrs == null) {
+            profesional = ejbProfesional.guardar(profesional);
+            if (profesional.getIdTipoDeDocumento() != null) {
+                obj = new JSONObject();
+                obj.put("idTipoDocumento", profesional.getIdTipoDeDocumento());
+                array = listarProfesionales(r);
+            } else {
+                obj = new JSONObject();
+                obj.put("error", "Error al guardar tipo de documento");
+                array.add(obj);
+            }
         } else {
             obj = new JSONObject();
-            obj.put("error", "Error al guardar tipo de documento");
+            obj.put("error", "Ya existe un profesional con el codigo " + profesional.getNumeroDeDocumento());
             array.add(obj);
         }
         return array;
@@ -147,20 +154,27 @@ public class Profesionalesweb extends HttpServlet {
             profesional.setUsuario(r.getParameter("usuario"));
             profesional.setEstado(r.getParameter("estado"));
             profesional.setUltimaEdicion(fechaActual);
-            profesional = ejbProfesional.editar(profesional);
-            obj = new JSONObject();
-            obj.put("idTipoDocumento", profesional.getIdTipoDeDocumento());
-            array = listarProfesionales(r);
+            Profesionales pfrs = ejbProfesional.traer(profesional.getNumeroDeDocumento(), sesion.clinica(r.getSession()));
+            if (pfrs == null || pfrs.getIdProfesional() == profesional.getIdProfesional()) {
+                profesional = ejbProfesional.editar(profesional);
+                obj = new JSONObject();
+                obj.put("idTipoDocumento", profesional.getIdTipoDeDocumento());
+                array = listarProfesionales(r);
+            } else {
+                obj = new JSONObject();
+                obj.put("error", "Ya existe un profesional con el codigo " + profesional.getNumeroDeDocumento());
+                array.add(obj);
+            }
         } else {
             obj = new JSONObject();
-            obj.put("error", "Error al guardar profesional");
+            obj.put("error", "Error al editar profesional");
             array.add(obj);
         }
         return array;
     }
 
     public Integer eliminarProfesional(HttpServletRequest r) {
-        Integer ok = ejbTipoDocumento.eliminar(Integer.parseInt(r.getParameter("idTipoDocumento")));
+        Integer ok = ejbProfesional.eliminar(Integer.parseInt(r.getParameter("idProfesional")));
         return ok;
     }
 

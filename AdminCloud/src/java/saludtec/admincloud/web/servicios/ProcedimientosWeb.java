@@ -122,7 +122,8 @@ public class ProcedimientosWeb extends HttpServlet {
         procedimiento.setFechaCreacion(fechaActual);
         procedimiento.setUltimaEdicion(fechaActual);
         procedimiento.setIdClinica(sesion.clinica(r.getSession()));
-        if (ejbProcedimiento.traer(procedimiento.getCups(), sesion.clinica(r.getSession())) == null) {
+        Procedimientos prcd = ejbProcedimiento.traer(procedimiento.getCups(), sesion.clinica(r.getSession()));
+        if (prcd == null || prcd.getEstado().equals("inactivo")) {
             procedimiento = ejbProcedimiento.guardar(procedimiento);
             if (procedimiento.getIdProcedimiento() != null) {
                 obj = new JSONObject();
@@ -158,7 +159,8 @@ public class ProcedimientosWeb extends HttpServlet {
             procedimiento.setFechaCreacion(fechaActual);
             procedimiento.setUltimaEdicion(fechaActual);
             procedimiento.setIdClinica(sesion.clinica(r.getSession()));
-            if (ejbProcedimiento.traer(procedimiento.getCups(), sesion.clinica(r.getSession())).getIdProcedimiento() == procedimiento.getIdProcedimiento()) {
+            Procedimientos prcd = ejbProcedimiento.traer(procedimiento.getCups(), sesion.clinica(r.getSession()));
+            if (prcd == null || prcd.getIdProcedimiento() == procedimiento.getIdProcedimiento()|| prcd.getEstado().equals("inactivo")) {
                 procedimiento = ejbProcedimiento.editar(procedimiento);
                 obj = new JSONObject();
                 obj.put("idProcedimiento", procedimiento.getIdProcedimiento());

@@ -15,6 +15,7 @@ public class Archivo {
 
     private final File rutaArchivos;
     private final File rutaClinicas;
+    private final File rutaTemporal;
     private final File clinica;
     private final File rutaPacientes;
     private final File paciente;
@@ -29,6 +30,7 @@ public class Archivo {
         carpetaPaciente = idPaciente;
         rutaArchivos = new File("/var/www/AdminCloudData");
         rutaClinicas = new File((rutaArchivos.getPath()) + "/clinicas");
+        rutaTemporal = new File((rutaArchivos.getPath()) + "/temp");
         clinica = new File(rutaClinicas.getPath() + "/" + carpetaClinica);
         rutaPacientes = new File(clinica.getPath() + "/pacientes");
         paciente = new File(rutaPacientes.getPath() + "/" + carpetaPaciente);
@@ -37,18 +39,20 @@ public class Archivo {
         anexosPaciente = new File(paciente.getPath() + "/anexos");
     }
 
-    public String crearDirectorioClinica() {
+    public Boolean crearDirectorioClinica() {
         Boolean ok = false;
-        String mensaje = "";
         if (carpetaClinica != null) {
             while (!ok) {
                 if (rutaArchivos.exists()) {
+                    if (!rutaTemporal.exists()) {
+                        rutaTemporal.mkdir();
+                    }
                     if (rutaClinicas.exists()) {
                         if (clinica.exists()) {
                             if (!rutaPacientes.exists()) {
                                 if (rutaPacientes.mkdir()) {
                                     ok = true;
-                                    mensaje = "Directorio de la clinica " + clinica.getName() + " creado";
+                                    System.out.println("Directorio de la clinica " + clinica.getName() + " creado");
                                 }
                             }
                         } else {
@@ -62,14 +66,13 @@ public class Archivo {
                 }
             }
         } else {
-            mensaje = "El nombre de la clinica no puede ser null";
+            System.out.println("El nombre de la clinica no puede ser null");
         }
-        return mensaje;
+        return ok;
     }
 
-    public String crearDirectorioPaciente() {
+    public Boolean crearDirectorioPaciente() {
         Boolean ok = false;
-        String mensaje = "";
         if (carpetaPaciente != null || carpetaPaciente != null) {
             while (!ok) {
                 if (rutaArchivos.exists()) {
@@ -87,7 +90,8 @@ public class Archivo {
                                         anexosPaciente.mkdir();
                                     }
                                     ok = true;
-                                    mensaje = "Directorio del paciente " + paciente.getName() + " creado";
+                                    System.out.println("Directorio del paciente " + paciente.getName() + " creado");
+
                                 } else {
                                     paciente.mkdir();
                                 }
@@ -105,9 +109,9 @@ public class Archivo {
                 }
             }
         } else {
-            mensaje = "El nombre de la clinica o del paciente no pueden ser null";
+            System.out.println("El nombre de la clinica o del paciente no pueden ser null");
         }
-        return mensaje;
+        return ok;
     }
 
 }

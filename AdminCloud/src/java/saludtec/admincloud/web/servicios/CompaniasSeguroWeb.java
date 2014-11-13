@@ -106,7 +106,8 @@ public class CompaniasSeguroWeb extends HttpServlet {
         companiaSeguro.setFechaCreacion(fechaActual);
         companiaSeguro.setUltimaEdicion(fechaActual);
         companiaSeguro.setIdClinica(sesion.clinica(r.getSession()));
-        if (ejbCompaniaSeguro.traer(companiaSeguro.getCodigo(), sesion.clinica(r.getSession())) == null) {
+        CompaniasDeSeguros cmps = ejbCompaniaSeguro.traer(companiaSeguro.getCodigo(), sesion.clinica(r.getSession()));
+        if (cmps == null || cmps.getEstado().equals("inactivo")) {
             companiaSeguro = ejbCompaniaSeguro.guardar(companiaSeguro);
 
             if (companiaSeguro.getIdCompaniaDeSeguro() != null) {
@@ -134,7 +135,8 @@ public class CompaniasSeguroWeb extends HttpServlet {
             companiaSeguro.setCompaniaDeSeguro(r.getParameter("companiaSeguro"));
             companiaSeguro.setCodigo(r.getParameter("codigoCompaniaSeguro"));
             companiaSeguro.setUltimaEdicion(fechaActual);
-            if (ejbCompaniaSeguro.traer(companiaSeguro.getCodigo(), sesion.clinica(r.getSession())).getIdCompaniaDeSeguro() == companiaSeguro.getIdCompaniaDeSeguro()) {
+            CompaniasDeSeguros cmps = ejbCompaniaSeguro.traer(companiaSeguro.getCodigo(), sesion.clinica(r.getSession()));
+            if (cmps == null || cmps.getIdCompaniaDeSeguro() == companiaSeguro.getIdCompaniaDeSeguro() || cmps.getEstado().equals("inactivo")) {
                 companiaSeguro = ejbCompaniaSeguro.editar(companiaSeguro);
                 obj = new JSONObject();
                 obj.put("idCompaniaSeguro", companiaSeguro.getIdCompaniaDeSeguro());
